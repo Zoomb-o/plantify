@@ -12,21 +12,63 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const apiKey = req.headers['x-api-key'];
+  if (!apiKey) return res.status(401).json({ error: 'Missing API key' });
 
-  // Debug: return everything we received
-  return res.status(200).json({
-    debug: true,
-    method: req.method,
-    hasApiKey: !!apiKey,
-    apiKeyLength: apiKey ? apiKey.length : 0,
-    bodyType: typeof req.body,
-    bodyKeys: req.body ? Object.keys(req.body) : [],
-    hasImage: !!(req.body && req.body.image),
-    imageLength: (req.body && req.body.image) ? req.body.image.length : 0,
-    hasPrompt: !!(req.body && req.body.prompt),
-    contentType: req.headers['content-type'],
-    text: 'DEBUG MODE - not calling Gemini'
-  });
+  let image, prompt;
+  try {
+    let body = req.body;
+    if (typeof body === 'string') body = JSON.parse(body);
+    image = body.image;
+    prompt = body.prompt;
+  } catch(e) {
+    return res.status(400).json({ error: 'Body parse error: ' + e.message });
+  }
+
+  if (!image) return res.status(400).json({ error: 'No image received' });
+  if (!prompt) return res.status(400).json({ error: 'No prompt received' });
+
+  try {
+    const geminiRes = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + apiKey,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { inline_data: { mime_type: 'image/jpeg', data: image.replace(/\s/g, '') } },
+            { text: prompt }
+          ]}],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+        })
+      }
+    );
+
+    const raw = await geminiRes.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(e) { return res.status(500).json({ error: 'Gemini returned invalid JSON' }); }
+
+    if (!geminiRes.ok) {
+      const msg = data && data.error ? data.error.message : raw.slice(0, 200);
+      return res.status(geminiRes.status).json({ error: 'Gemini: ' + msg });
+    }
+
+    const text = data &&
+      data.candidates &&
+      data.candidates[0] &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts &&
+      data.candidates[0].content.parts[0] &&
+      data.candidates[0].content.parts[0].text;
+
+    if (!text) return res.status(500).json({ error: 'No text in Gemini response' });
+
+    return res.status(200).json({ text: text });
+
+  } catch(err) {
+    return res.status(500).json({ error: 'Fetch failed: ' + err.message });
+  }
 }
