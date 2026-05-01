@@ -448,16 +448,33 @@ async function identify(dataURL){
 
     const data=await res.json();
 
-    if(!res.ok){
-      throw new Error(data?.error || `API error ${res.status}`);
-    }
+let data;
+try {
+  data = await res.json();
+} catch(e) {
+  throw new Error('Could not read server response: ' + e.message);
+}
 
-    const rawText=data.text||'{"plants":[]}';
-    const jsonStart=rawText.indexOf('{');
-    const jsonEnd=rawText.lastIndexOf('}');
-    if(jsonStart===-1) throw new Error('No valid response received. Please try again.');
-    const jsonStr=rawText.slice(jsonStart,jsonEnd+1);
-    currentResults=JSON.parse(jsonStr);
+if (!res.ok) {
+  throw new Error(data?.error || `API error ${res.status}`);
+}
+
+const rawText = data?.text || '';
+if (!rawText) throw new Error('Gemini returned empty text. Try again.');
+
+// Strip markdown code fences if present
+const stripped = rawText.replace(/```json\s*/gi,'').replace(/```\s*/gi,'').trim();
+
+const jsonStart = stripped.indexOf('{');
+const jsonEnd = stripped.lastIndexOf('}');
+if (jsonStart === -1) throw new Error('Bad AI response: ' + rawText.slice(0,100));
+const jsonStr = stripped.slice(jsonStart, jsonEnd + 1);
+
+try {
+  currentResults = JSON.parse(jsonStr);
+} catch(e) {
+  throw new Error('JSON parse failed: ' + jsonStr.slice(0,100));
+}
     stopLoading();
     renderResult();
   }catch(e){
