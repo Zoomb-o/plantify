@@ -875,7 +875,7 @@ Respond ONLY with valid JSON, no markdown:
 If no botanical life visible: {"plants":[],"sceneDescription":"No plant life detected."}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
