@@ -12,63 +12,40 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const apiKey = req.headers['x-api-key'];
-  if (!apiKey) return res.status(401).json({ error: 'Missing API key' });
+  const { image, prompt } = req.body || {};
 
-  let image, prompt;
-  try {
-    let body = req.body;
-    if (typeof body === 'string') body = JSON.parse(body);
-    image = body.image;
-    prompt = body.prompt;
-  } catch(e) {
-    return res.status(400).json({ error: 'Body parse error: ' + e.message });
+  if (!apiKey || !image) {
+    return res.status(200).json({ text: '{"sceneDescription":"Debug: apiKey=' + (!!apiKey) + ' imageLen=' + (image ? image.length : 0) + '","plants":[]}' });
   }
 
-  if (!image) return res.status(400).json({ error: 'No image received' });
-  if (!prompt) return res.status(400).json({ error: 'No prompt received' });
-
-  try {
-    const geminiRes = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [
-            { inline_data: { mime_type: 'image/jpeg', data: image.replace(/\s/g, '') } },
-            { text: prompt }
-          ]}],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
-        })
-      }
-    );
-
-    const raw = await geminiRes.text();
-    let data;
-    try { data = JSON.parse(raw); }
-    catch(e) { return res.status(500).json({ error: 'Gemini returned invalid JSON' }); }
-
-    if (!geminiRes.ok) {
-      const msg = data && data.error ? data.error.message : raw.slice(0, 200);
-      return res.status(geminiRes.status).json({ error: 'Gemini: ' + msg });
+  const geminiRes = await fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { inline_data: { mime_type: 'image/jpeg', data: image } },
+          { text: prompt || 'What plants are in this image? Reply with JSON: {"sceneDescription":"desc","plants":[]}' }
+        ]}],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+      })
     }
+  );
 
-    const text = data &&
-      data.candidates &&
-      data.candidates[0] &&
-      data.candidates[0].content &&
-      data.candidates[0].content.parts &&
-      data.candidates[0].content.parts[0] &&
-      data.candidates[0].content.parts[0].text;
-
-    if (!text) return res.status(500).json({ error: 'No text in Gemini response' });
-
-    return res.status(200).json({ text: text });
-
-  } catch(err) {
-    return res.status(500).json({ error: 'Fetch failed: ' + err.message });
+  const raw = await geminiRes.text();
+  
+  if (!geminiRes.ok) {
+    return res.status(200).json({ text: '{"sceneDescription":"Gemini error ' + geminiRes.status + ': ' + raw.slice(0,200).replace(/"/g,"'") + '","plants":[]}' });
   }
+
+  let data;
+  try { data = JSON.parse(raw); } catch(e) { return res.status(200).json({ text: '{"sceneDescription":"Parse error: ' + raw.slice(0,100) + '","plants":[]}' }); }
+
+  const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+  if (!text) return res.status(200).json({ text: '{"sceneDescription":"No text: ' + raw.slice(0,200).replace(/"/g,"'") + '","plants":[]}' });
+
+  return res.status(200).json({ text: text });
 }
