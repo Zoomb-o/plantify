@@ -1,388 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a1a0b" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Plantify" />
-  <title>Plantify — Plant Identifier</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg:#0a1a0b; --bg2:#0f2210; --bg3:#142814; --card:#111f12;
-      --border:#1e3d20; --border2:#2a5c2d;
-      --g1:#4caf50; --g2:#81c784; --g3:#a5d6a7; --g4:#c8e6c9;
-      --acc:#ff6d00; --acc2:#ff8f00;
-      --t1:#e8f5e9; --t2:#81c784; --t3:#4caf50; --t4:#2e7d32;
-      --st: env(safe-area-inset-top,0px);
-      --sb: env(safe-area-inset-bottom,0px);
-    }
-    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-    html,body { height:100%; overflow:hidden; font-family:'Outfit',sans-serif; background:var(--bg); color:var(--t1); }
-    #app { height:100%; display:flex; flex-direction:column; max-width:480px; margin:0 auto; position:relative; overflow:hidden; }
-
-    /* SCREENS */
-    .screen { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transform:translateY(20px); transition:opacity .3s,transform .3s; }
-    .screen.active { opacity:1; pointer-events:all; transform:translateY(0); }
-    .scroll-body { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-    .scroll-body::-webkit-scrollbar { display:none; }
-
-    /* BARS */
-    .topbar { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:calc(var(--st) + 12px) 18px 12px; background:var(--bg); border-bottom:1px solid var(--border); }
-    .brand { display:flex; align-items:center; gap:10px; }
-    .brand-icon { width:36px; height:36px; background:var(--bg3); border:1px solid var(--border2); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
-    .brand-name { font-family:'Lora',serif; font-size:22px; font-weight:700; color:var(--g3); }
-    .brand-sub { font-size:9px; color:var(--g1); letter-spacing:2.5px; text-transform:uppercase; }
-    .topbar-btn { background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--g2); font-family:'Outfit',sans-serif; font-size:13px; font-weight:500; padding:7px 13px; cursor:pointer; }
-    .backbar { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:calc(var(--st) + 12px) 18px 12px; background:var(--bg); border-bottom:1px solid var(--border); }
-    .back-btn { display:flex; align-items:center; gap:5px; color:var(--g2); font-size:15px; font-weight:500; background:none; border:none; cursor:pointer; }
-    .back-btn svg { width:18px; height:18px; stroke:var(--g2); fill:none; stroke-width:2; }
-    .bar-title { color:var(--t1); font-size:15px; font-weight:600; }
-    .bar-act { background:none; border:none; color:var(--g1); font-size:13px; font-weight:500; cursor:pointer; }
-
-    /* HOME */
-    .home-body { padding:18px 18px calc(var(--sb) + 110px); display:flex; flex-direction:column; gap:16px; }
-    .hero { background:linear-gradient(135deg,#162b17,#0f2210); border:1px solid var(--border2); border-radius:22px; padding:26px; }
-    .free-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(76,175,80,.15); border:1px solid var(--g1); border-radius:20px; padding:5px 13px; font-size:12px; font-weight:700; color:var(--g1); margin-bottom:14px; }
-    .hero-title { font-family:'Lora',serif; font-size:27px; font-weight:700; color:var(--g4); line-height:1.25; margin-bottom:10px; }
-    .hero-sub { font-size:14px; color:var(--t3); line-height:1.6; margin-bottom:18px; }
-    .hero-pills { display:flex; flex-wrap:wrap; gap:8px; }
-    .pill { background:rgba(46,125,50,.25); border:1px solid var(--border2); border-radius:20px; padding:5px 12px; font-size:12px; color:var(--g2); font-weight:500; }
-    .action-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .act-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px 16px; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; transition:transform .15s; }
-    .act-card:active { transform:scale(.97); }
-    .act-card.primary { background:linear-gradient(160deg,#1e4d20,#142814); border-color:var(--border2); }
-    .act-icon { font-size:36px; line-height:1; }
-    .act-label { font-size:16px; font-weight:700; color:var(--g4); }
-    .act-sub { font-size:11px; color:var(--t3); }
-    .tips-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px; }
-    .tips-title { font-size:11px; color:var(--t3); letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:14px; }
-    .tip-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-    .tip-row:last-child { margin-bottom:0; }
-    .tip-icon { font-size:17px; width:26px; text-align:center; flex-shrink:0; }
-    .tip-text { font-size:13px; color:var(--t2); line-height:1.4; }
-    .stats { display:grid; grid-template-columns:1fr 1fr 1fr; background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
-    .stat { padding:14px 10px; text-align:center; border-right:1px solid var(--border); }
-    .stat:last-child { border-right:none; }
-    .stat-n { font-size:20px; font-weight:700; color:var(--g3); display:block; }
-    .stat-l { font-size:10px; color:var(--t3); margin-top:2px; }
-
-    /* DOCK */
-    .dock { position:absolute; bottom:0; left:0; right:0; padding:12px 18px calc(var(--sb) + 12px); background:rgba(10,26,11,.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--border); display:flex; gap:10px; z-index:20; }
-    .dock-btn { flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:14px; color:var(--g2); font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; padding:13px 8px; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
-    .dock-btn:active { transform:scale(.97); }
-    .dock-btn.primary { background:linear-gradient(135deg,#2e7d32,#1b5e20); border-color:#2e7d32; color:var(--g4); }
-    .dock-btn svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:2; }
-
-    /* LOADING */
-    .loading-wrap { background:var(--bg); flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; }
-    .orb { width:100px; height:100px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#2e7d32,#0a1a0b); border:2px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:44px; margin-bottom:28px; animation:pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,.3);transform:scale(1)} 50%{box-shadow:0 0 0 20px rgba(76,175,80,0);transform:scale(1.04)} }
-    .dots { display:flex; gap:6px; margin-bottom:22px; }
-    .dot { width:8px; height:8px; border-radius:50%; background:var(--g1); animation:bounce 1.4s ease-in-out infinite; }
-    .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
-    @keyframes bounce { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
-    .load-msg { font-size:18px; font-weight:600; color:var(--g3); margin-bottom:8px; text-align:center; }
-    .load-hint { font-size:13px; color:var(--t4); text-align:center; }
-
-    /* RESULT */
-    .result-body { padding:16px 16px calc(var(--sb) + 24px); display:flex; flex-direction:column; gap:14px; }
-    .img-wrap { position:relative; border-radius:18px; overflow:hidden; background:var(--bg3); line-height:0; }
-    .result-img { width:100%; display:block; border-radius:18px; }
-    .marker { position:absolute; width:28px; height:28px; border-radius:50%; background:var(--acc); border:2.5px solid white; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:white; transform:translate(-50%,-50%); cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.6); z-index:5; transition:transform .15s,background .15s; }
-    .marker.active { background:var(--acc2); transform:translate(-50%,-50%) scale(1.25); }
-    .scene-box { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; font-size:13px; color:var(--t3); line-height:1.5; }
-    .sec-head { font-family:'Lora',serif; font-size:18px; color:var(--g3); font-weight:600; }
-    .plant-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:16px; cursor:pointer; animation:cardin .4s ease both; }
-    .plant-card:active { transform:scale(.98); }
-    @keyframes cardin { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-    .card-top { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
-    .card-num { width:30px; height:30px; border-radius:50%; background:var(--acc); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:white; flex-shrink:0; margin-top:1px; }
-    .card-names { flex:1; }
-    .card-common { font-size:16px; font-weight:700; color:var(--g4); line-height:1.3; }
-    .card-sci { font-size:12px; color:var(--t3); font-style:italic; margin-top:2px; }
-    .card-emoji { font-size:28px; flex-shrink:0; }
-    .card-desc { font-size:13px; color:var(--t2); line-height:1.55; margin-bottom:12px; }
-    .tags { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
-    .tag { border-radius:20px; padding:4px 11px; font-size:11px; font-weight:600; }
-    .tag-type { background:var(--bg3); border:1px solid var(--border2); color:var(--g2); }
-    .tag-yes { background:#1a2e1a; border:1px solid #2e7d32; color:#66bb6a; }
-    .tag-no { background:#1a1510; border:1px solid #4e342e; color:#a1887f; }
-    .tag-toxic { background:#2a0e0e; border:1px solid #7f1616; color:#ef9a9a; }
-    .tag-unknown { background:#1a1a1a; border:1px solid #333; color:#9e9e9e; }
-    .cdot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:4px; }
-    .ch{background:#4caf50} .cm{background:#ff9800} .cl{background:#f44336}
-    .tag-conf { background:none; color:var(--t3); padding-left:0; }
-    .card-hint { font-size:11px; color:var(--border2); margin-top:10px; text-align:right; }
-    .save-btn { background:linear-gradient(135deg,#2e7d32,#1b5e20); border:none; border-radius:16px; color:var(--g4); font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; padding:16px; width:100%; cursor:pointer; }
-    .save-btn:disabled { opacity:.55; }
-    .no-plants { display:flex; flex-direction:column; align-items:center; padding:40px 20px; gap:12px; text-align:center; }
-    .err-box { background:#200a0a; border:1px solid #7f1616; border-radius:14px; padding:16px; color:#ef9a9a; font-size:13px; line-height:1.7; margin:16px; }
-
-    /* DETAIL */
-    .detail-body { padding:16px 16px calc(var(--sb) + 24px); display:flex; flex-direction:column; gap:14px; }
-    .d-hero { background:linear-gradient(135deg,#162b17,#0f2210); border:1px solid var(--border2); border-radius:22px; padding:24px; }
-    .d-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-    .d-num { width:38px; height:38px; border-radius:50%; background:var(--acc); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:white; }
-    .d-emoji { font-size:44px; }
-    .d-common { font-family:'Lora',serif; font-size:26px; font-weight:700; color:var(--g4); margin-bottom:6px; line-height:1.2; }
-    .d-sci { font-size:15px; color:var(--t3); font-style:italic; margin-bottom:16px; }
-    .d-type { display:inline-block; background:rgba(46,125,50,.25); border:1px solid var(--border2); border-radius:20px; padding:6px 16px; font-size:13px; font-weight:600; color:var(--g2); }
-    .info-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; }
-    .info-label { font-size:11px; color:var(--t3); letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:10px; }
-    .info-text { font-size:14px; color:var(--t2); line-height:1.65; }
-    .edible-card { display:flex; align-items:flex-start; gap:14px; border-radius:16px; padding:16px; }
-    .e-emoji { font-size:30px; flex-shrink:0; }
-    .e-label { font-size:15px; font-weight:700; margin-bottom:6px; }
-    .e-desc { font-size:13px; line-height:1.6; }
-    .e-yes{background:#0f2010;border:1px solid #2e7d32} .e-no{background:#1a1208;border:1px solid #4e342e}
-    .e-toxic{background:#200a0a;border:1px solid #7f1616} .e-unknown{background:var(--card);border:1px solid var(--border)}
-    .disclaimer { background:#161500; border:1px solid #2e2c00; border-radius:14px; padding:14px; font-size:12px; color:#9e9a00; line-height:1.6; }
-
-    /* HISTORY */
-    .hist-body { padding:16px 16px calc(var(--sb) + 24px); display:flex; flex-direction:column; gap:12px; }
-    .hist-card { background:var(--card); border:1px solid var(--border); border-radius:18px; overflow:hidden; display:flex; }
-    .hist-thumb { width:86px; height:86px; object-fit:cover; flex-shrink:0; }
-    .hist-thumb-e { width:86px; height:86px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
-    .hist-inner { padding:11px 13px; flex:1; display:flex; flex-direction:column; gap:4px; }
-    .hist-date { font-size:11px; color:var(--t3); }
-    .hist-count { font-size:15px; font-weight:700; color:var(--g4); }
-    .hist-scene { font-size:12px; color:var(--t4); line-height:1.4; }
-    .hist-pills { display:flex; flex-wrap:wrap; gap:5px; margin-top:3px; }
-    .hist-pill { background:var(--bg3); border-radius:8px; padding:2px 8px; font-size:10px; color:var(--g2); }
-    .empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; gap:12px; text-align:center; }
-    .empty-icon { font-size:52px; }
-    .empty-title { font-size:22px; font-weight:700; color:var(--g4); }
-    .empty-text { font-size:14px; color:var(--t3); line-height:1.6; }
-    .empty-btn { background:var(--bg3); border:1px solid var(--border2); border-radius:14px; color:var(--g2); font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; padding:12px 24px; cursor:pointer; margin-top:8px; }
-
-    /* MODAL */
-    .modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.85); display:flex; align-items:flex-end; z-index:200; opacity:0; pointer-events:none; transition:opacity .3s; }
-    .modal-ov.open { opacity:1; pointer-events:all; }
-    .modal { background:var(--bg2); border:1px solid var(--border2); border-radius:24px 24px 0 0; padding:28px 22px calc(var(--sb) + 28px); width:100%; transform:translateY(40px); transition:transform .3s; }
-    .modal-ov.open .modal { transform:translateY(0); }
-    .modal-title { font-family:'Lora',serif; font-size:22px; color:var(--g3); margin-bottom:8px; }
-    .modal-sub { font-size:13px; color:var(--t3); line-height:1.6; margin-bottom:20px; }
-    .modal-steps { background:var(--bg3); border-radius:12px; padding:14px; margin-bottom:20px; display:flex; flex-direction:column; gap:10px; }
-    .m-step { display:flex; gap:10px; align-items:flex-start; }
-    .m-step-n { width:22px; height:22px; border-radius:50%; background:var(--g1); color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .m-step-t { font-size:12px; color:var(--t2); line-height:1.5; }
-    .m-step-t a { color:var(--g1); }
-    .modal-label { font-size:12px; color:var(--t3); letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:8px; display:block; }
-    .modal-input { width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; color:var(--t1); font-family:'Outfit',sans-serif; font-size:14px; padding:13px 14px; margin-bottom:8px; outline:none; }
-    .modal-input:focus { border-color:var(--g1); }
-    .modal-hint { font-size:12px; color:var(--t4); margin-bottom:20px; line-height:1.6; }
-    .modal-save { width:100%; background:linear-gradient(135deg,#2e7d32,#1b5e20); border:none; border-radius:14px; color:var(--g4); font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; padding:15px; cursor:pointer; }
-
-    /* TOAST */
-    .toast { position:fixed; top:calc(var(--st) + 70px); left:50%; transform:translateX(-50%) translateY(-10px); background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 18px; font-size:13px; color:var(--g2); font-weight:500; opacity:0; transition:opacity .3s,transform .3s; white-space:nowrap; z-index:300; pointer-events:none; }
-    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-    .hidden { display:none !important; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#0a1a0b"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Plantify"/>
+<title>Plantify</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a1a0b;--bg2:#0f2210;--bg3:#142814;--card:#111f12;--b1:#1e3d20;--b2:#2a5c2d;--g1:#4caf50;--g2:#81c784;--g3:#a5d6a7;--g4:#c8e6c9;--ac:#ff6d00;--t1:#e8f5e9;--t2:#81c784;--t3:#4caf50;--t4:#2e7d32;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1)}
+#app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .3s,transform .3s}
+.scr.on{opacity:1;pointer-events:all;transform:translateY(0)}
+.sb{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sb::-webkit-scrollbar{display:none}
+/* bars */
+.topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st) + 12px) 18px 12px;background:var(--bg);border-bottom:1px solid var(--b1)}
+.brand{display:flex;align-items:center;gap:10px}
+.bico{width:36px;height:36px;background:var(--bg3);border:1px solid var(--b2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.bname{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--g3)}
+.bsub{font-size:9px;color:var(--g1);letter-spacing:2.5px;text-transform:uppercase}
+.tbtn{background:var(--bg3);border:1px solid var(--b1);border-radius:10px;color:var(--g2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:7px 13px;cursor:pointer}
+.bbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st) + 12px) 18px 12px;background:var(--bg);border-bottom:1px solid var(--b1)}
+.bbk{display:flex;align-items:center;gap:5px;color:var(--g2);font-size:15px;font-weight:500;background:none;border:none;cursor:pointer}
+.bbk svg{width:18px;height:18px;stroke:var(--g2);fill:none;stroke-width:2}
+.btit{color:var(--t1);font-size:15px;font-weight:600}
+.bact{background:none;border:none;color:var(--g1);font-size:13px;font-weight:500;cursor:pointer}
+/* home */
+.hbody{padding:18px 18px calc(var(--sb) + 110px);display:flex;flex-direction:column;gap:16px}
+.hero{background:linear-gradient(135deg,#162b17,#0f2210);border:1px solid var(--b2);border-radius:22px;padding:26px}
+.fbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(76,175,80,.15);border:1px solid var(--g1);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--g1);margin-bottom:14px}
+.htit{font-family:'Lora',serif;font-size:27px;font-weight:700;color:var(--g4);line-height:1.25;margin-bottom:10px}
+.hsub{font-size:14px;color:var(--t3);line-height:1.6;margin-bottom:18px}
+.hpills{display:flex;flex-wrap:wrap;gap:8px}
+.hp{background:rgba(46,125,50,.25);border:1px solid var(--b2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--g2);font-weight:500}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.acard{background:var(--card);border:1px solid var(--b1);border-radius:18px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:transform .15s}
+.acard:active{transform:scale(.97)}
+.acard.pri{background:linear-gradient(160deg,#1e4d20,#142814);border-color:var(--b2)}
+.aico{font-size:36px;line-height:1}
+.albl{font-size:16px;font-weight:700;color:var(--g4)}
+.asub{font-size:11px;color:var(--t3)}
+.tips{background:var(--card);border:1px solid var(--b1);border-radius:18px;padding:18px}
+.ttit{font-size:11px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:14px}
+.trow{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.trow:last-child{margin-bottom:0}
+.tico{font-size:17px;width:26px;text-align:center;flex-shrink:0}
+.ttxt{font-size:13px;color:var(--t2);line-height:1.4}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--card);border:1px solid var(--b1);border-radius:16px;overflow:hidden}
+.stat{padding:14px 10px;text-align:center;border-right:1px solid var(--b1)}
+.stat:last-child{border-right:none}
+.sn{font-size:20px;font-weight:700;color:var(--g3);display:block}
+.sl{font-size:10px;color:var(--t3);margin-top:2px}
+/* dock */
+.dock{position:absolute;bottom:0;left:0;right:0;padding:12px 18px calc(var(--sb) + 12px);background:rgba(10,26,11,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--b1);display:flex;gap:10px;z-index:20}
+.dbtn{flex:1;background:var(--bg3);border:1px solid var(--b1);border-radius:14px;color:var(--g2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:13px 8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.dbtn:active{transform:scale(.97)}
+.dbtn.pri{background:linear-gradient(135deg,#2e7d32,#1b5e20);border-color:#2e7d32;color:var(--g4)}
+.dbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
+/* loading */
+.lw{background:var(--bg);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px}
+.orb{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2e7d32,#0a1a0b);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:28px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,.3);transform:scale(1)}50%{box-shadow:0 0 0 20px rgba(76,175,80,0);transform:scale(1.04)}}
+.dots{display:flex;gap:6px;margin-bottom:22px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--g1);animation:bnc 1.4s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bnc{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.lmsg{font-size:18px;font-weight:600;color:var(--g3);margin-bottom:8px;text-align:center}
+.lhint{font-size:13px;color:var(--t4);text-align:center}
+/* result */
+.rbody{padding:16px 16px calc(var(--sb) + 24px);display:flex;flex-direction:column;gap:14px}
+.iw{position:relative;border-radius:18px;overflow:hidden;background:var(--bg3);line-height:0}
+.rimg{width:100%;display:block;border-radius:18px}
+.mkr{position:absolute;width:28px;height:28px;border-radius:50%;background:var(--ac);border:2.5px solid white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;transform:translate(-50%,-50%);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.6);z-index:5;transition:transform .15s,background .15s}
+.mkr.on{background:#ff8f00;transform:translate(-50%,-50%) scale(1.25)}
+.scene{background:var(--card);border:1px solid var(--b1);border-radius:14px;padding:12px 14px;font-size:13px;color:var(--t3);line-height:1.5}
+.sh{font-family:'Lora',serif;font-size:18px;color:var(--g3);font-weight:600}
+.pc{background:var(--card);border:1px solid var(--b1);border-radius:18px;padding:16px;cursor:pointer;animation:cin .4s ease both}
+.pc:active{transform:scale(.98)}
+@keyframes cin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ctop{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.cnum{width:30px;height:30px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;margin-top:1px}
+.cnames{flex:1}
+.ccom{font-size:16px;font-weight:700;color:var(--g4);line-height:1.3}
+.csci{font-size:12px;color:var(--t3);font-style:italic;margin-top:2px}
+.cico{font-size:28px;flex-shrink:0}
+.cdsc{font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:12px}
+.ctags{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.tag{border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600}
+.ttype{background:var(--bg3);border:1px solid var(--b2);color:var(--g2)}
+.tyes{background:#1a2e1a;border:1px solid #2e7d32;color:#66bb6a}
+.tno{background:#1a1510;border:1px solid #4e342e;color:#a1887f}
+.ttox{background:#2a0e0e;border:1px solid #7f1616;color:#ef9a9a}
+.tunk{background:#1a1a1a;border:1px solid #333;color:#9e9e9e}
+.cdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.ch{background:#4caf50}.cm{background:#ff9800}.cl{background:#f44336}
+.tconf{background:none;color:var(--t3);padding-left:0}
+.chint{font-size:11px;color:var(--b2);margin-top:10px;text-align:right}
+.sbtn{background:linear-gradient(135deg,#2e7d32,#1b5e20);border:none;border-radius:16px;color:var(--g4);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;padding:16px;width:100%;cursor:pointer}
+.sbtn:disabled{opacity:.55}
+.sbtn:active{transform:scale(.98)}
+.nop{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;text-align:center}
+.errbox{background:#200a0a;border:1px solid #7f1616;border-radius:14px;padding:16px;color:#ef9a9a;font-size:13px;line-height:1.7;margin:16px}
+/* detail */
+.dbody{padding:16px 16px calc(var(--sb) + 24px);display:flex;flex-direction:column;gap:14px}
+.dhero{background:linear-gradient(135deg,#162b17,#0f2210);border:1px solid var(--b2);border-radius:22px;padding:24px}
+.dtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.dnum{width:38px;height:38px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white}
+.dico{font-size:44px}
+.dcom{font-family:'Lora',serif;font-size:26px;font-weight:700;color:var(--g4);margin-bottom:6px;line-height:1.2}
+.dsci{font-size:15px;color:var(--t3);font-style:italic;margin-bottom:16px}
+.dtyp{display:inline-block;background:rgba(46,125,50,.25);border:1px solid var(--b2);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;color:var(--g2)}
+.ic{background:var(--card);border:1px solid var(--b1);border-radius:16px;padding:16px}
+.ilbl{font-size:11px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.itxt{font-size:14px;color:var(--t2);line-height:1.65}
+.ec{display:flex;align-items:flex-start;gap:14px;border-radius:16px;padding:16px}
+.eico{font-size:30px;flex-shrink:0}
+.elbl{font-size:15px;font-weight:700;margin-bottom:6px}
+.edsc{font-size:13px;line-height:1.6}
+.eyes{background:#0f2010;border:1px solid #2e7d32}.eno{background:#1a1208;border:1px solid #4e342e}
+.etox{background:#200a0a;border:1px solid #7f1616}.eunk{background:var(--card);border:1px solid var(--b1)}
+.disc{background:#161500;border:1px solid #2e2c00;border-radius:14px;padding:14px;font-size:12px;color:#9e9a00;line-height:1.6}
+/* history */
+.hsbody{padding:16px 16px calc(var(--sb) + 24px);display:flex;flex-direction:column;gap:12px}
+.hcard{background:var(--card);border:1px solid var(--b1);border-radius:18px;overflow:hidden;display:flex}
+.hthumb{width:86px;height:86px;object-fit:cover;flex-shrink:0}
+.hthumbe{width:86px;height:86px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.hinn{padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:4px}
+.hdate{font-size:11px;color:var(--t3)}
+.hcnt{font-size:15px;font-weight:700;color:var(--g4)}
+.hsc{font-size:12px;color:var(--t4);line-height:1.4}
+.hpills{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.hpill{background:var(--bg3);border-radius:8px;padding:2px 8px;font-size:10px;color:var(--g2)}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px;text-align:center}
+.eico2{font-size:52px}
+.etit{font-size:22px;font-weight:700;color:var(--g4)}
+.etxt{font-size:14px;color:var(--t3);line-height:1.6}
+.ebtn{background:var(--bg3);border:1px solid var(--b2);border-radius:14px;color:var(--g2);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;cursor:pointer;margin-top:8px}
+/* modal */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.mov.on{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--b2);border-radius:24px 24px 0 0;padding:28px 22px calc(var(--sb) + 28px);width:100%;transform:translateY(40px);transition:transform .3s}
+.mov.on .modal{transform:translateY(0)}
+.mtit{font-family:'Lora',serif;font-size:22px;color:var(--g3);margin-bottom:8px}
+.msub{font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:20px}
+.msteps{background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
+.mstep{display:flex;gap:10px;align-items:flex-start}
+.msn{width:22px;height:22px;border-radius:50%;background:var(--g1);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mst{font-size:12px;color:var(--t2);line-height:1.5}
+.mst a{color:var(--g1)}
+.mlbl{font-size:12px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:8px;display:block}
+.minp{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:12px;color:var(--t1);font-family:'Outfit',sans-serif;font-size:14px;padding:13px 14px;margin-bottom:8px;outline:none}
+.minp:focus{border-color:var(--g1)}
+.mhint{font-size:12px;color:var(--t4);margin-bottom:20px;line-height:1.6}
+.msave{width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20);border:none;border-radius:14px;color:var(--g4);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;padding:15px;cursor:pointer}
+/* toast */
+.toast{position:fixed;top:calc(var(--st) + 70px);left:50%;transform:translateX(-50%) translateY(-10px);background:var(--bg3);border:1px solid var(--b2);border-radius:12px;padding:10px 18px;font-size:13px;color:var(--g2);font-weight:500;opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap;z-index:300;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
 <div id="app">
 
-  <!-- HOME -->
-  <div class="screen active" id="screen-home">
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-icon">🌿</div>
-        <div>
-          <div class="brand-name">Plantify</div>
-          <div class="brand-sub">Plant Identifier</div>
+<div class="scr on" id="s-home">
+  <div class="topbar">
+    <div class="brand">
+      <div class="bico">🌿</div>
+      <div><div class="bname">Plantify</div><div class="bsub">Plant Identifier</div></div>
+    </div>
+    <button class="tbtn" onclick="go('history')">History</button>
+  </div>
+  <div class="sb">
+    <div class="hbody">
+      <div class="hero">
+        <div class="fbadge">✨ Powered by Google Gemini — Free</div>
+        <div class="htit">Identify any plant in seconds</div>
+        <div class="hsub">Point your camera at plants, trees, mushrooms or flowers — get instant free AI identification.</div>
+        <div class="hpills">
+          <span class="hp">🌸 Flowers</span><span class="hp">🌲 Trees</span>
+          <span class="hp">🍄 Fungi</span><span class="hp">🌿 Herbs</span><span class="hp">🌵 Cacti</span>
         </div>
       </div>
-      <button class="topbar-btn" onclick="showScreen('history')">History</button>
-    </div>
-    <div class="scroll-body">
-      <div class="home-body">
-        <div class="hero">
-          <div class="free-badge">✨ Powered by Google Gemini — Free</div>
-          <div class="hero-title">Identify any plant in seconds</div>
-          <div class="hero-sub">Point your camera at plants, trees, mushrooms or flowers and get instant AI identification — completely free.</div>
-          <div class="hero-pills">
-            <span class="pill">🌸 Flowers</span>
-            <span class="pill">🌲 Trees</span>
-            <span class="pill">🍄 Fungi</span>
-            <span class="pill">🌿 Herbs</span>
-            <span class="pill">🌵 Cacti</span>
-          </div>
+      <div class="agrid">
+        <div class="acard pri" onclick="doCamera()">
+          <div class="aico">📷</div><div class="albl">Camera</div><div class="asub">Take a photo</div>
         </div>
-        <div class="action-grid">
-          <div class="act-card primary" onclick="triggerCamera()">
-            <div class="act-icon">📷</div>
-            <div class="act-label">Camera</div>
-            <div class="act-sub">Take a photo</div>
-          </div>
-          <div class="act-card" onclick="triggerGallery()">
-            <div class="act-icon">🖼️</div>
-            <div class="act-label">Gallery</div>
-            <div class="act-sub">Choose a photo</div>
-          </div>
-        </div>
-        <div class="tips-card">
-          <div class="tips-title">Tips for best results</div>
-          <div class="tip-row"><span class="tip-icon">☀️</span><span class="tip-text">Good lighting helps accuracy</span></div>
-          <div class="tip-row"><span class="tip-icon">🎯</span><span class="tip-text">Focus clearly on the plant</span></div>
-          <div class="tip-row"><span class="tip-icon">📐</span><span class="tip-text">Include leaves, flowers, or stem</span></div>
-          <div class="tip-row"><span class="tip-icon">🔍</span><span class="tip-text">Works with multiple plants at once</span></div>
-        </div>
-        <div class="stats">
-          <div class="stat"><span class="stat-n">400K+</span><span class="stat-l">Species</span></div>
-          <div class="stat"><span class="stat-n">Free</span><span class="stat-l">Forever</span></div>
-          <div class="stat"><span class="stat-n">AI</span><span class="stat-l">Powered</span></div>
+        <div class="acard" onclick="doGallery()">
+          <div class="aico">🖼️</div><div class="albl">Gallery</div><div class="asub">Choose a photo</div>
         </div>
       </div>
-    </div>
-    <div class="dock">
-      <button class="dock-btn primary" onclick="triggerCamera()">
-        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        Camera
-      </button>
-      <button class="dock-btn" onclick="triggerGallery()">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Gallery
-      </button>
-      <button class="dock-btn" onclick="showApiModal()">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        API Key
-      </button>
-    </div>
-    <input type="file" id="file-cam" accept="image/*" capture="environment" class="hidden" />
-    <input type="file" id="file-gal" accept="image/*" class="hidden" />
-  </div>
-
-  <!-- LOADING -->
-  <div class="screen" id="screen-loading">
-    <div class="loading-wrap">
-      <div class="orb">🌿</div>
-      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-      <div class="load-msg" id="load-msg">Scanning for flora...</div>
-      <div class="load-hint">Usually takes 5–10 seconds</div>
+      <div class="tips">
+        <div class="ttit">Tips for best results</div>
+        <div class="trow"><span class="tico">☀️</span><span class="ttxt">Good lighting helps accuracy</span></div>
+        <div class="trow"><span class="tico">🎯</span><span class="ttxt">Focus clearly on the plant</span></div>
+        <div class="trow"><span class="tico">📐</span><span class="ttxt">Include leaves, flowers or stem</span></div>
+        <div class="trow"><span class="tico">🔍</span><span class="ttxt">Works with multiple plants at once</span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="sn">400K+</span><span class="sl">Species</span></div>
+        <div class="stat"><span class="sn">Free</span><span class="sl">Forever</span></div>
+        <div class="stat"><span class="sn">AI</span><span class="sl">Powered</span></div>
+      </div>
     </div>
   </div>
-
-  <!-- RESULT -->
-  <div class="screen" id="screen-result">
-    <div class="backbar">
-      <button class="back-btn" onclick="showScreen('home')">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
-      </button>
-      <span class="bar-title" id="result-title">Results</span>
-      <button class="bar-act" onclick="shareResult()">Share</button>
-    </div>
-    <div class="scroll-body"><div class="result-body" id="result-body"></div></div>
+  <div class="dock">
+    <button class="dbtn pri" onclick="doCamera()">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Camera
+    </button>
+    <button class="dbtn" onclick="doGallery()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Gallery
+    </button>
+    <button class="dbtn" onclick="openModal()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>API Key
+    </button>
   </div>
+  <input type="file" id="fcam" accept="image/*" capture="environment" class="hidden">
+  <input type="file" id="fgal" accept="image/*" class="hidden">
+</div>
 
-  <!-- DETAIL -->
-  <div class="screen" id="screen-detail">
-    <div class="backbar">
-      <button class="back-btn" onclick="showScreen('result')">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
-      </button>
-      <span class="bar-title">Plant Details</span>
-      <button class="bar-act" onclick="sharePlant()">Share</button>
-    </div>
-    <div class="scroll-body"><div class="detail-body" id="detail-body"></div></div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="screen" id="screen-history">
-    <div class="backbar">
-      <button class="back-btn" onclick="showScreen('home')">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
-      </button>
-      <span class="bar-title">History</span>
-      <button class="bar-act" id="clear-btn" onclick="clearHistory()">Clear</button>
-    </div>
-    <div class="scroll-body"><div class="hist-body" id="hist-body"></div></div>
+<div class="scr" id="s-loading">
+  <div class="lw">
+    <div class="orb">🌿</div>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="lmsg" id="lmsg">Scanning for flora...</div>
+    <div class="lhint">Usually takes 5–10 seconds</div>
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-ov" id="api-modal">
+<div class="scr" id="s-result">
+  <div class="bbar">
+    <button class="bbk" onclick="go('home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+    <span class="btit" id="rtit">Results</span>
+    <button class="bact" onclick="doShare()">Share</button>
+  </div>
+  <div class="sb"><div class="rbody" id="rbody"></div></div>
+</div>
+
+<div class="scr" id="s-detail">
+  <div class="bbar">
+    <button class="bbk" onclick="go('result')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+    <span class="btit">Plant Details</span>
+    <button class="bact" onclick="doSharePlant()">Share</button>
+  </div>
+  <div class="sb"><div class="dbody" id="dbody"></div></div>
+</div>
+
+<div class="scr" id="s-history">
+  <div class="bbar">
+    <button class="bbk" onclick="go('home')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+    <span class="btit">History</span>
+    <button class="bact" id="clrbtn" onclick="clearHist()">Clear</button>
+  </div>
+  <div class="sb"><div class="hsbody" id="hsbody"></div></div>
+</div>
+
+</div>
+
+<div class="mov" id="modal">
   <div class="modal">
-    <div class="modal-title">🔑 Google Gemini API Key</div>
-    <div class="modal-sub">Completely free — no credit card needed.</div>
-    <div class="modal-steps">
-      <div class="m-step"><div class="m-step-n">1</div><div class="m-step-t">Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></div></div>
-      <div class="m-step"><div class="m-step-n">2</div><div class="m-step-t">Sign in with your Google / Gmail account</div></div>
-      <div class="m-step"><div class="m-step-n">3</div><div class="m-step-t">Click <strong>"Create API Key"</strong> — copy and paste below</div></div>
+    <div class="mtit">🔑 Google Gemini API Key</div>
+    <div class="msub">Completely free — no credit card needed.</div>
+    <div class="msteps">
+      <div class="mstep"><div class="msn">1</div><div class="mst">Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></div></div>
+      <div class="mstep"><div class="msn">2</div><div class="mst">Sign in with your Google / Gmail account</div></div>
+      <div class="mstep"><div class="msn">3</div><div class="mst">Click <strong>Create API Key</strong> — copy and paste below</div></div>
     </div>
-    <label class="modal-label">Your Gemini API Key</label>
-    <input type="password" class="modal-input" id="api-input" placeholder="AIza..." autocomplete="off" />
-    <div class="modal-hint">Saved only on this device. Free tier: 60 requests/minute.</div>
-    <button class="modal-save" onclick="saveKey()">Save &amp; Start Identifying</button>
+    <label class="mlbl">Your Gemini API Key</label>
+    <input type="password" class="minp" id="kinp" placeholder="AIza..." autocomplete="off">
+    <div class="mhint">Saved only on this device. Free tier: 60 requests/minute.</div>
+    <button class="msave" onclick="saveKey()">Save &amp; Start Identifying</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var state = { img: null, results: null, plant: null, loadTimer: null };
-
+var S = { img: null, res: null, plant: null, timer: null };
 var MSGS = ['Scanning for flora...','Asking Gemini AI...','Identifying species...','Analysing patterns...','Almost there...'];
-var ICONS = {flower:'🌸',tree:'🌲',shrub:'🌿',mushroom:'🍄',moss:'🟢',fern:'🌿',grass:'🌾',herb:'🌱',vine:'🍃',cactus:'🌵',other:'🌏'};
+var ICOS = {flower:'🌸',tree:'🌲',shrub:'🌿',mushroom:'🍄',moss:'🟢',fern:'🌿',grass:'🌾',herb:'🌱',vine:'🍃',cactus:'🌵',other:'🌏'};
+var PROMPT = 'You are an expert botanist. Identify ALL botanical organisms in this image.\n\nReturn ONLY raw JSON with no markdown or code fences:\n{"sceneDescription":"one sentence","plants":[{"number":1,"common":"Name","scientific":"Latin","type":"flower","description":"One sentence.","details":"2-3 fact sentences.","edible":"yes","confidence":"high","x":45,"y":60}]}\n\ntype: flower|tree|shrub|mushroom|moss|fern|grass|herb|vine|cactus|other\nedible: yes|no|toxic|unknown\nconfidence: high|medium|low\nx,y: center of plant as % from top-left (0-100)\n\nNo plants? Return: {"sceneDescription":"No plant life detected","plants":[]}';
 
-var PROMPT = 'You are an expert botanist. Analyze this image and identify ALL visible botanical organisms.\n\nRespond ONLY with raw JSON (no markdown, no code fences):\n{"sceneDescription":"one sentence","plants":[{"number":1,"common":"Name","scientific":"Latin name","type":"flower","description":"One sentence about appearance.","details":"2-3 sentences of facts.","edible":"yes","confidence":"high","x":45,"y":60}]}\n\ntype: flower|tree|shrub|mushroom|moss|fern|grass|herb|vine|cactus|other\nedible: yes|no|toxic|unknown\nconfidence: high|medium|low\nx,y: % position of plant center from top-left (0-100)\n\nIf no plants visible: {"sceneDescription":"No plant life detected","plants":[]}';
+function gk() { return localStorage.getItem('pgk') || ''; }
+function sk(v) { localStorage.setItem('pgk', v); }
+function gh() { try { return JSON.parse(localStorage.getItem('ph') || '[]'); } catch(e) { return []; } }
+function sh(v) { localStorage.setItem('ph', JSON.stringify(v)); }
 
-function getKey() { return localStorage.getItem('plantify_gemini_key') || ''; }
-function setKey(k) { localStorage.setItem('plantify_gemini_key', k); }
-function getHist() { try { return JSON.parse(localStorage.getItem('plantify_hist') || '[]'); } catch(e) { return []; } }
-function setHist(h) { localStorage.setItem('plantify_hist', JSON.stringify(h)); }
-
-function showScreen(n) {
-  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-  document.getElementById('screen-' + n).classList.add('active');
+function go(n) {
+  var ss = document.querySelectorAll('.scr');
+  for (var i = 0; i < ss.length; i++) ss[i].classList.remove('on');
+  document.getElementById('s-' + n).classList.add('on');
   if (n === 'history') renderHist();
 }
 
-function toast(msg) {
+function toast(m) {
   var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, 2800);
+  t.textContent = m;
+  t.classList.add('on');
+  setTimeout(function() { t.classList.remove('on'); }, 2800);
 }
 
-function showApiModal() {
-  document.getElementById('api-input').value = getKey();
-  document.getElementById('api-modal').classList.add('open');
+function openModal() {
+  document.getElementById('kinp').value = gk();
+  document.getElementById('modal').classList.add('on');
 }
-function hideApiModal() { document.getElementById('api-modal').classList.remove('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('on'); }
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
 function saveKey() {
-  var v = document.getElementById('api-input').value.trim();
+  var v = document.getElementById('kinp').value.trim();
   if (!v) { toast('Please enter your API key'); return; }
-  setKey(v);
-  hideApiModal();
-  toast('✓ API key saved!');
-}
-document.getElementById('api-modal').addEventListener('click', function(e) {
-  if (e.target === document.getElementById('api-modal')) hideApiModal();
-});
-
-function triggerCamera() { if (!getKey()) { showApiModal(); return; } document.getElementById('file-cam').click(); }
-function triggerGallery() { if (!getKey()) { showApiModal(); return; } document.getElementById('file-gal').click(); }
-
-document.getElementById('file-cam').addEventListener('change', function(e) {
-  if (e.target.files && e.target.files[0]) { handleFile(e.target.files[0]); e.target.value = ''; }
-});
-document.getElementById('file-gal').addEventListener('change', function(e) {
-  if (e.target.files && e.target.files[0]) { handleFile(e.target.files[0]); e.target.value = ''; }
-});
-
-function handleFile(file) {
-  var reader = new FileReader();
-  reader.onload = function(ev) { state.img = ev.target.result; identify(ev.target.result); };
-  reader.readAsDataURL(file);
+  sk(v);
+  closeModal();
+  toast('API key saved!');
 }
 
-function resizeImg(dataURL, cb) {
+function doCamera() { if (!gk()) { openModal(); return; } document.getElementById('fcam').click(); }
+function doGallery() { if (!gk()) { openModal(); return; } document.getElementById('fgal').click(); }
+
+document.getElementById('fcam').addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) { readFile(e.target.files[0]); this.value = ''; }
+});
+document.getElementById('fgal').addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) { readFile(e.target.files[0]); this.value = ''; }
+});
+
+function readFile(f) {
+  var r = new FileReader();
+  r.onload = function(e) { S.img = e.target.result; identify(); };
+  r.readAsDataURL(f);
+}
+
+function resize(dataURL, cb) {
   var img = new Image();
   img.onload = function() {
     try {
@@ -392,243 +349,233 @@ function resizeImg(dataURL, cb) {
       var c = document.createElement('canvas');
       c.width = w; c.height = h;
       c.getContext('2d').drawImage(img, 0, 0, w, h);
-      var out = c.toDataURL('image/jpeg', 0.75);
-      cb(out);
-    } catch(e) {
-      cb(dataURL);
-    }
+      cb(c.toDataURL('image/jpeg', 0.75));
+    } catch(e) { cb(dataURL); }
   };
   img.onerror = function() { cb(dataURL); };
   img.src = dataURL;
 }
 
 function startLoad() {
-  showScreen('loading');
-  var idx = 0;
-  document.getElementById('load-msg').textContent = MSGS[0];
-  state.loadTimer = setInterval(function() {
-    idx = (idx + 1) % MSGS.length;
-    document.getElementById('load-msg').textContent = MSGS[idx];
+  go('loading');
+  var i = 0;
+  document.getElementById('lmsg').textContent = MSGS[0];
+  S.timer = setInterval(function() {
+    i = (i + 1) % MSGS.length;
+    document.getElementById('lmsg').textContent = MSGS[i];
   }, 1800);
 }
-function stopLoad() { clearInterval(state.loadTimer); }
+function stopLoad() { clearInterval(S.timer); }
 
-function identify(dataURL) {
+function identify() {
   startLoad();
-  resizeImg(dataURL, function(resized) {
-    state.img = resized;
-    var b64 = resized.split(',')[1];
-    var bodyStr;
-    try {
-      bodyStr = JSON.stringify({ image: b64, prompt: PROMPT });
-    } catch(e) {
-      stopLoad(); showError('Failed to prepare image: ' + e.message); return;
-    }
+  resize(S.img, function(small) {
+    S.img = small;
+    var b64 = small.split(',')[1];
+    var body = JSON.stringify({ image: b64, prompt: PROMPT });
 
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/proxy', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('x-api-key', getKey());
+    xhr.setRequestHeader('x-api-key', gk());
     xhr.timeout = 60000;
 
-    xhr.onload = function() {
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
       stopLoad();
+      if (xhr.status === 0) {
+        showErr('Connection failed. Check your internet connection.');
+        return;
+      }
       var data;
       try { data = JSON.parse(xhr.responseText); }
-      catch(e) { showError('Bad server response: ' + xhr.responseText.slice(0,100)); return; }
-      if (xhr.status !== 200) { showError(data.error || 'Server error ' + xhr.status); return; }
+      catch(e) { showErr('Bad response from server. Please try again.'); return; }
+
+      if (xhr.status !== 200) {
+        showErr(data.error || 'Server error ' + xhr.status);
+        return;
+      }
+
       var raw = data.text || '';
-      if (!raw) { showError('Empty response. Please try again.'); return; }
-      var cleaned = raw.replace(//g,'').trim();
-      var start = cleaned.indexOf('{');
-      var end = cleaned.lastIndexOf('}');
-      if (start === -1) { showError('Unexpected AI response: ' + raw.slice(0,120)); return; }
+      if (!raw) { showErr('Empty response from Gemini. Please try again.'); return; }
+
+      var clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+      var a = clean.indexOf('{');
+      var b = clean.lastIndexOf('}');
+      if (a === -1) { showErr('Unexpected response: ' + raw.slice(0, 100)); return; }
+
       try {
-        state.results = JSON.parse(cleaned.slice(start, end + 1));
+        S.res = JSON.parse(clean.slice(a, b + 1));
         renderResult();
-      } catch(e) { showError('Could not read AI response: ' + cleaned.slice(0,120)); }
+      } catch(e) {
+        showErr('Could not read AI response. Please try again.');
+      }
     };
-    xhr.onerror = function() { stopLoad(); showError('Connection failed. Check your internet and try again.'); };
-    xhr.ontimeout = function() { stopLoad(); showError('Request timed out. Please try again.'); };
-    try { xhr.send(bodyStr); } catch(e) { stopLoad(); showError('Failed to send: ' + e.message); }
+
+    xhr.send(body);
   });
 }
 
-function showError(msg) {
-  showScreen('result');
-  document.getElementById('result-title').textContent = 'Error';
-  document.getElementById('result-body').innerHTML =
-    '<div class="err-box"><strong>Something went wrong</strong><br/><br/>' + esc(msg) +
-    '<br/><br/>Common fixes:<br/>• Check your Gemini API key (tap API Key button)<br/>• Make sure key is from aistudio.google.com<br/>• Try a different photo</div>' +
-    '<div style="padding:0 16px"><button class="save-btn" onclick="showScreen(\'home\')">← Try Again</button></div>';
+function showErr(msg) {
+  go('result');
+  document.getElementById('rtit').textContent = 'Error';
+  document.getElementById('rbody').innerHTML =
+    '<div class="errbox"><strong>Something went wrong</strong><br><br>' + esc(msg) +
+    '<br><br>Common fixes:<br>• Check your Gemini API key<br>• Make sure key is from aistudio.google.com<br>• Try a different photo</div>' +
+    '<div style="padding:0 16px"><button class="sbtn" onclick="go(\'home\')">Try Again</button></div>';
 }
 
 function renderResult() {
-  showScreen('result');
-  var plants = (state.results && state.results.plants) ? state.results.plants : [];
-  document.getElementById('result-title').textContent =
-    plants.length > 0 ? plants.length + ' plant' + (plants.length !== 1 ? 's' : '') + ' found' : 'No plants found';
+  go('result');
+  var plants = S.res && S.res.plants ? S.res.plants : [];
+  document.getElementById('rtit').textContent = plants.length
+    ? plants.length + ' plant' + (plants.length !== 1 ? 's' : '') + ' found'
+    : 'No plants found';
 
-  var html = '<div class="img-wrap" id="img-wrap"><img class="result-img" id="result-img" src="' + state.img + '" alt="Photo"/></div>';
-
-  if (state.results && state.results.sceneDescription) {
-    html += '<div class="scene-box">📍 ' + esc(state.results.sceneDescription) + '</div>';
+  var h = '<div class="iw" id="iw"><img class="rimg" id="rimg" src="' + S.img + '" alt=""/></div>';
+  if (S.res && S.res.sceneDescription) {
+    h += '<div class="scene">📍 ' + esc(S.res.sceneDescription) + '</div>';
   }
-
-  if (plants.length === 0) {
-    html += '<div class="no-plants"><div style="font-size:52px">🔍</div><div style="font-size:20px;font-weight:700;color:var(--g4)">No plants detected</div><div style="font-size:14px;color:var(--t3)">Try a clearer photo with visible plant life.</div></div>';
+  if (!plants.length) {
+    h += '<div class="nop"><div style="font-size:52px">🔍</div><div style="font-size:20px;font-weight:700;color:var(--g4)">No plants detected</div><div style="font-size:14px;color:var(--t3)">Try a clearer photo with visible plant life.</div></div>';
   } else {
-    html += '<div class="sec-head">Identified Plants</div>';
+    h += '<div class="sh">Identified Plants</div>';
     for (var i = 0; i < plants.length; i++) {
       var p = plants[i];
-      var eLabel = {yes:'✅ Edible',no:'🚫 Not edible',toxic:'☠️ Toxic',unknown:'❓ Unknown'}[p.edible] || '❓ Unknown';
-      var eClass = 'tag-' + (p.edible || 'unknown');
-      html += '<div class="plant-card" id="card-' + p.number + '" style="animation-delay:' + (i * 0.07) + 's" onclick="showDetail(' + p.number + ')">' +
-        '<div class="card-top">' +
-          '<div class="card-num">' + p.number + '</div>' +
-          '<div class="card-names"><div class="card-common">' + esc(p.common) + '</div><div class="card-sci">' + esc(p.scientific) + '</div></div>' +
-          '<div class="card-emoji">' + (ICONS[p.type] || '🌱') + '</div>' +
+      var el = {yes:'✅ Edible',no:'🚫 Not edible',toxic:'☠️ Toxic',unknown:'❓ Unknown'}[p.edible] || '❓ Unknown';
+      var ec = {yes:'tyes',no:'tno',toxic:'ttox',unknown:'tunk'}[p.edible] || 'tunk';
+      var cc = {h:'ch',m:'cm',l:'cl'}[(p.confidence||'m').charAt(0)] || 'cm';
+      h += '<div class="pc" id="pc' + p.number + '" style="animation-delay:' + (i * 0.07) + 's" onclick="showDetail(' + p.number + ')">' +
+        '<div class="ctop">' +
+          '<div class="cnum">' + p.number + '</div>' +
+          '<div class="cnames"><div class="ccom">' + esc(p.common) + '</div><div class="csci">' + esc(p.scientific) + '</div></div>' +
+          '<div class="cico">' + (ICOS[p.type] || '🌱') + '</div>' +
         '</div>' +
-        '<div class="card-desc">' + esc(p.description) + '</div>' +
-        '<div class="tags">' +
-          '<span class="tag tag-type">' + esc(p.type) + '</span>' +
-          '<span class="tag ' + eClass + '">' + eLabel + '</span>' +
-          '<span class="tag tag-conf"><span class="cdot c' + (p.confidence||'m').charAt(0) + '"></span>' + (p.confidence||'medium') + '</span>' +
+        '<div class="cdsc">' + esc(p.description) + '</div>' +
+        '<div class="ctags">' +
+          '<span class="tag ttype">' + esc(p.type) + '</span>' +
+          '<span class="tag ' + ec + '">' + el + '</span>' +
+          '<span class="tag tconf"><span class="cdot ' + cc + '"></span>' + (p.confidence || 'medium') + '</span>' +
         '</div>' +
-        '<div class="card-hint">Tap for full details →</div>' +
+        '<div class="chint">Tap for full details →</div>' +
       '</div>';
     }
-    html += '<button class="save-btn" id="save-btn" onclick="saveToHist()">💾 Save to History</button>';
+    h += '<button class="sbtn" id="savebtn" onclick="saveHist()">💾 Save to History</button>';
   }
+  document.getElementById('rbody').innerHTML = h;
 
-  document.getElementById('result-body').innerHTML = html;
-
-  var img = document.getElementById('result-img');
-  function addMarkers() {
-    var wrap = document.getElementById('img-wrap');
+  var img = document.getElementById('rimg');
+  function addMkrs() {
+    var wrap = document.getElementById('iw');
     for (var i = 0; i < plants.length; i++) {
       (function(p) {
         var m = document.createElement('button');
-        m.className = 'marker';
+        m.className = 'mkr';
         m.textContent = p.number;
         m.style.left = p.x + '%';
         m.style.top = (p.y / 100 * img.offsetHeight) + 'px';
         m.onclick = function() {
-          document.querySelectorAll('.marker').forEach(function(x) { x.classList.remove('active'); });
-          m.classList.add('active');
-          var card = document.getElementById('card-' + p.number);
+          document.querySelectorAll('.mkr').forEach(function(x) { x.classList.remove('on'); });
+          m.classList.add('on');
+          var card = document.getElementById('pc' + p.number);
           if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
         wrap.appendChild(m);
       })(plants[i]);
     }
   }
-  if (img.complete && img.naturalWidth) { addMarkers(); } else { img.onload = addMarkers; }
+  if (img.complete && img.naturalWidth) { addMkrs(); } else { img.onload = addMkrs; }
 }
 
 function showDetail(num) {
-  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+  var plants = S.res && S.res.plants ? S.res.plants : [];
   var p = null;
   for (var i = 0; i < plants.length; i++) { if (plants[i].number === num) { p = plants[i]; break; } }
   if (!p) return;
-  state.plant = p;
+  S.plant = p;
 
-  var ec = {
-    yes:  {cls:'e-yes',   emoji:'✅', label:'Edible',            desc:'Known to be edible. Always verify with a local expert before foraging.'},
-    no:   {cls:'e-no',    emoji:'🚫', label:'Not edible',         desc:'Not typically consumed as food.'},
-    toxic:{cls:'e-toxic', emoji:'☠️', label:'Toxic / Poisonous',  desc:'WARNING: May be toxic or poisonous. Do not ingest. Keep away from children and pets.'},
-    unknown:{cls:'e-unknown',emoji:'❓',label:'Edibility unknown', desc:'Do not consume without expert verification.'}
-  }[p.edible] || {cls:'e-unknown',emoji:'❓',label:'Unknown',desc:''};
+  var em = {yes:{c:'eyes',e:'✅',l:'Edible',d:'Known to be edible. Verify with expert before foraging.'},no:{c:'eno',e:'🚫',l:'Not edible',d:'Not typically consumed as food.'},toxic:{c:'etox',e:'☠️',l:'Toxic',d:'WARNING: May be toxic. Do not ingest. Keep from children and pets.'},unknown:{c:'eunk',e:'❓',l:'Unknown',d:'Do not consume without expert verification.'}}[p.edible] || {c:'eunk',e:'❓',l:'Unknown',d:''};
+  var cc = {high:'#4caf50',medium:'#ff9800',low:'#f44336'}[p.confidence] || '#ff9800';
+  var cd = {high:'AI is highly confident in this identification.',medium:'Consider verifying with a field guide.',low:'Uncertain — expert verification recommended.'}[p.confidence] || '';
 
-  var cc = {high:'#4caf50',medium:'#ff9800',low:'#f44336'}[p.confidence] || '#9e9e9e';
-  var cd = {high:'Gemini AI is highly confident.',medium:'Consider verifying with a field guide.',low:'Uncertain — expert verification recommended.'}[p.confidence] || '';
+  document.getElementById('dbody').innerHTML =
+    '<div class="dhero">' +
+      '<div class="dtop"><div class="dnum">' + p.number + '</div><div class="dico">' + (ICOS[p.type]||'🌱') + '</div></div>' +
+      '<div class="dcom">' + esc(p.common) + '</div>' +
+      '<div class="dsci">' + esc(p.scientific) + '</div>' +
+      '<div class="dtyp">' + esc((p.type||'').charAt(0).toUpperCase() + (p.type||'').slice(1)) + '</div>' +
+    '</div>' +
+    '<div class="ic" style="border-color:' + cc + '44">' +
+      '<div class="ilbl">Confidence</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:' + cc + ';flex-shrink:0"></div><span style="font-size:13px;font-weight:700;color:' + cc + '">' + (p.confidence||'medium') + '</span></div>' +
+      '<div class="itxt">' + cd + '</div>' +
+    '</div>' +
+    '<div class="ic"><div class="ilbl">About</div><div class="itxt">' + esc(p.description) + '</div>' + (p.details ? '<div class="itxt" style="margin-top:10px">' + esc(p.details) + '</div>' : '') + '</div>' +
+    '<div class="ec ' + em.c + '"><div class="eico">' + em.e + '</div><div><div class="elbl">' + em.l + '</div><div class="edsc">' + em.d + '</div></div></div>' +
+    '<div class="disc">⚠️ Plantify is an AI tool for educational purposes. Always verify identification with a certified botanist before foraging or handling unknown plants.</div>';
 
-  document.getElementById('detail-body').innerHTML =
-    '<div class="d-hero">' +
-      '<div class="d-top"><div class="d-num">' + p.number + '</div><div class="d-emoji">' + (ICONS[p.type]||'🌱') + '</div></div>' +
-      '<div class="d-common">' + esc(p.common) + '</div>' +
-      '<div class="d-sci">' + esc(p.scientific) + '</div>' +
-      '<div class="d-type">' + esc(p.type.charAt(0).toUpperCase() + p.type.slice(1)) + '</div>' +
-    '</div>' +
-    '<div class="info-card" style="border-color:' + cc + '44">' +
-      '<div class="info-label">Confidence</div>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:' + cc + ';flex-shrink:0"></div><span style="font-size:13px;font-weight:700;color:' + cc + '">' + p.confidence + '</span></div>' +
-      '<div class="info-text">' + cd + '</div>' +
-    '</div>' +
-    '<div class="info-card">' +
-      '<div class="info-label">About</div>' +
-      '<div class="info-text">' + esc(p.description) + '</div>' +
-      (p.details ? '<div class="info-text" style="margin-top:10px">' + esc(p.details) + '</div>' : '') +
-    '</div>' +
-    '<div class="edible-card ' + ec.cls + '">' +
-      '<div class="e-emoji">' + ec.emoji + '</div>' +
-      '<div><div class="e-label">' + ec.label + '</div><div class="e-desc">' + ec.desc + '</div></div>' +
-    '</div>' +
-    '<div class="disclaimer">⚠️ Plantify is an AI tool for educational purposes. Always verify identification with a certified botanist before foraging or handling unknown plants.</div>';
-
-  showScreen('detail');
+  go('detail');
 }
 
-function saveToHist() {
-  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+function saveHist() {
+  var plants = S.res && S.res.plants ? S.res.plants : [];
   if (!plants.length) return;
-  var h = getHist();
-  h.unshift({ id: Date.now().toString(), date: new Date().toISOString(), img: state.img, plants: plants.map(function(p) { return {common:p.common,type:p.type}; }), count: plants.length, scene: (state.results && state.results.sceneDescription) || '' });
-  setHist(h.slice(0, 30));
-  var btn = document.getElementById('save-btn');
-  if (btn) { btn.textContent = '✓ Saved to History'; btn.disabled = true; }
+  var h = gh();
+  h.unshift({ id: Date.now()+'', date: new Date().toISOString(), img: S.img, plants: plants.map(function(p) { return {common:p.common,type:p.type}; }), count: plants.length, scene: (S.res && S.res.sceneDescription) || '' });
+  sh(h.slice(0, 30));
+  var b = document.getElementById('savebtn');
+  if (b) { b.textContent = '✓ Saved!'; b.disabled = true; }
   toast('Saved to history!');
 }
 
 function renderHist() {
-  var h = getHist();
-  var cb = document.getElementById('clear-btn');
-  if (h.length === 0) {
+  var h = gh();
+  var cb = document.getElementById('clrbtn');
+  if (!h.length) {
     cb.style.display = 'none';
-    document.getElementById('hist-body').innerHTML = '<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">No history yet</div><div class="empty-text">Identify some plants and save them.</div><button class="empty-btn" onclick="showScreen(\'home\')">Identify a plant</button></div>';
+    document.getElementById('hsbody').innerHTML = '<div class="empty"><div class="eico2">📚</div><div class="etit">No history yet</div><div class="etxt">Identify some plants and save them.</div><button class="ebtn" onclick="go(\'home\')">Identify a plant</button></div>';
     return;
   }
   cb.style.display = '';
-  document.getElementById('hist-body').innerHTML = h.map(function(e) {
-    return '<div class="hist-card">' +
-      (e.img ? '<img class="hist-thumb" src="' + e.img + '" alt=""/>' : '<div class="hist-thumb-e">🌿</div>') +
-      '<div class="hist-inner">' +
-        '<div class="hist-date">' + fmtDate(e.date) + '</div>' +
-        '<div class="hist-count">' + e.count + ' plant' + (e.count !== 1 ? 's' : '') + ' found</div>' +
-        (e.scene ? '<div class="hist-scene">' + esc(e.scene) + '</div>' : '') +
-        '<div class="hist-pills">' +
-          e.plants.slice(0, 4).map(function(p) { return '<span class="hist-pill">' + (ICONS[p.type]||'🌱') + ' ' + esc(p.common) + '</span>'; }).join('') +
-          (e.plants.length > 4 ? '<span class="hist-pill">+' + (e.plants.length - 4) + ' more</span>' : '') +
+  document.getElementById('hsbody').innerHTML = h.map(function(e) {
+    return '<div class="hcard">' +
+      (e.img ? '<img class="hthumb" src="' + e.img + '" alt=""/>' : '<div class="hthumbe">🌿</div>') +
+      '<div class="hinn">' +
+        '<div class="hdate">' + fmtD(e.date) + '</div>' +
+        '<div class="hcnt">' + e.count + ' plant' + (e.count !== 1 ? 's' : '') + ' found</div>' +
+        (e.scene ? '<div class="hsc">' + esc(e.scene) + '</div>' : '') +
+        '<div class="hpills">' +
+          e.plants.slice(0,4).map(function(p) { return '<span class="hpill">' + (ICOS[p.type]||'🌱') + ' ' + esc(p.common) + '</span>'; }).join('') +
+          (e.plants.length > 4 ? '<span class="hpill">+' + (e.plants.length-4) + ' more</span>' : '') +
         '</div>' +
-      '</div>' +
-    '</div>';
+      '</div></div>';
   }).join('');
 }
 
-function clearHistory() {
+function clearHist() {
   if (!confirm('Delete all saved identifications?')) return;
-  setHist([]); renderHist();
+  sh([]); renderHist();
 }
 
-function shareResult() {
-  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+function doShare() {
+  var plants = S.res && S.res.plants ? S.res.plants : [];
   var list = plants.map(function(p) { return p.number + '. ' + p.common + ' (' + p.scientific + ')'; }).join('\n');
-  var text = 'Identified ' + plants.length + ' plant' + (plants.length !== 1 ? 's' : '') + ' with Plantify 🌿\n\n' + list + '\n\nTry Plantify — free plant identification!';
-  if (navigator.share) { navigator.share({title:'Plantify Results', text:text}); }
-  else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function() { toast('Copied to clipboard!'); }); }
+  var txt = 'Found ' + plants.length + ' plant(s) with Plantify 🌿\n\n' + list + '\n\nTry Plantify — free plant identification!';
+  if (navigator.share) { navigator.share({title:'Plantify Results', text:txt}); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { toast('Copied!'); }); }
 }
-function sharePlant() {
-  if (!state.plant) return;
-  var text = '🌿 ' + state.plant.common + ' (' + state.plant.scientific + ')\n\n' + state.plant.description + '\n\n' + (state.plant.details||'') + '\n\nIdentified with Plantify';
-  if (navigator.share) { navigator.share({title: state.plant.common, text:text}); }
-  else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function() { toast('Copied!'); }); }
+function doSharePlant() {
+  if (!S.plant) return;
+  var txt = '🌿 ' + S.plant.common + ' (' + S.plant.scientific + ')\n\n' + S.plant.description + '\n\n' + (S.plant.details||'') + '\n\nFound with Plantify';
+  if (navigator.share) { navigator.share({title:S.plant.common, text:txt}); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { toast('Copied!'); }); }
 }
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fmtD(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function(){}); }
-if (!getKey()) { setTimeout(showApiModal, 800); }
+if (!gk()) { setTimeout(openModal, 800); }
 </script>
 </body>
 </html>
