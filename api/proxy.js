@@ -10,12 +10,8 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(401).json({ error: 'Missing API key' });
 
   try {
-    const body = req.body;
-    
-    // Debug: log what we received
-    if (!body) return res.status(400).json({ error: 'No body received' });
-    if (!body.image) return res.status(400).json({ error: 'No image in body' });
-    if (!body.prompt) return res.status(400).json({ error: 'No prompt in body' });
+    const { image, prompt } = req.body;
+    if (!image) return res.status(400).json({ error: 'No image provided' });
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -25,8 +21,8 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [{
             parts: [
-              { inline_data: { mime_type: 'image/jpeg', data: body.image } },
-              { text: body.prompt }
+              { inline_data: { mime_type: 'image/jpeg', data: image } },
+              { text: prompt }
             ]
           }],
           generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
@@ -35,29 +31,23 @@ export default async function handler(req, res) {
     );
 
     const raw = await response.text();
-    console.log('Gemini status:', response.status);
-    console.log('Gemini raw:', raw.slice(0, 500));
 
     let data;
-    try { data = JSON.parse(raw); } 
-    catch(e) { return res.status(500).json({ error: 'JSON parse failed. Raw: ' + raw.slice(0, 300) }); }
+    try { data = JSON.parse(raw); }
+    catch(e) { return res.status(500).json({ error: 'Gemini returned invalid JSON: ' + raw.slice(0, 200) }); }
 
     if (!response.ok) {
-      return res.status(response.status).json({ 
-        error: data?.error?.message || 'Gemini error ' + response.status 
-      });
+      return res.status(response.status).json({ error: data?.error?.message || 'Gemini error ' + response.status });
     }
 
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) {
-      return res.status(500).json({ 
-        error: 'No text in response. Keys: ' + Object.keys(data).join(', ') + ' | Raw: ' + raw.slice(0, 300)
-      });
+      return res.status(500).json({ error: 'No text in Gemini response. Raw: ' + raw.slice(0, 300) });
     }
 
     return res.status(200).json({ text });
 
   } catch (err) {
-    return res.status(500).json({ error: 'Caught: ' + err.message + ' | ' + err.stack?.slice(0,200) });
+    return res.status(500).json({ error: err.message });
   }
 }

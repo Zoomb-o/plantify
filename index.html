@@ -8,172 +8,181 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Plantify" />
-  <meta name="description" content="AI-powered plant, tree, mushroom and flower identification" />
   <title>Plantify — Plant Identifier</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:#0a1a0b;--bg2:#0f2210;--bg3:#142814;--card:#111f12;
-      --border:#1e3d20;--border2:#2a5c2d;
-      --green1:#4caf50;--green2:#81c784;--green3:#a5d6a7;--green4:#c8e6c9;
-      --accent:#ff6d00;--accent2:#ff8f00;
-      --text1:#e8f5e9;--text2:#81c784;--text3:#4caf50;--text4:#2e7d32;
-      --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+      --bg:#0a1a0b; --bg2:#0f2210; --bg3:#142814; --card:#111f12;
+      --border:#1e3d20; --border2:#2a5c2d;
+      --g1:#4caf50; --g2:#81c784; --g3:#a5d6a7; --g4:#c8e6c9;
+      --acc:#ff6d00; --acc2:#ff8f00;
+      --t1:#e8f5e9; --t2:#81c784; --t3:#4caf50; --t4:#2e7d32;
+      --st: env(safe-area-inset-top,0px);
+      --sb: env(safe-area-inset-bottom,0px);
     }
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text1)}
-    #app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
-    .screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity .3s,transform .3s}
-    .screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
-    .scroll-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .scroll-body::-webkit-scrollbar{display:none}
-    .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 12px) 18px 12px;background:var(--bg);border-bottom:1px solid var(--border);z-index:10}
-    .topbar-brand{display:flex;align-items:center;gap:10px}
-    .topbar-icon{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-    .topbar-name{font-family:'Lora',serif;font-size:22px;font-weight:700;color:var(--green3);letter-spacing:-.3px}
-    .topbar-sub{font-size:9px;color:var(--green1);letter-spacing:2.5px;text-transform:uppercase;line-height:1;margin-top:1px}
-    .topbar-btn{background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--green2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:7px 13px;cursor:pointer}
-    .backbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 12px) 18px 12px;background:var(--bg);border-bottom:1px solid var(--border)}
-    .back-btn{display:flex;align-items:center;gap:5px;color:var(--green2);font-size:15px;font-weight:500;background:none;border:none;cursor:pointer}
-    .back-btn svg{width:18px;height:18px;stroke:var(--green2);fill:none;stroke-width:2}
-    .bar-title{color:var(--text1);font-size:15px;font-weight:600}
-    .bar-action{background:none;border:none;color:var(--green1);font-size:13px;font-weight:500;cursor:pointer}
-    .home-body{padding:18px 18px calc(var(--safe-bottom) + 110px);display:flex;flex-direction:column;gap:16px}
-    .hero-card{background:linear-gradient(135deg,#162b17 0%,#0f2210 100%);border:1px solid var(--border2);border-radius:22px;padding:26px;position:relative;overflow:hidden}
-    .hero-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(76,175,80,.12) 0%,transparent 70%);pointer-events:none}
-    .hero-title{font-family:'Lora',serif;font-size:28px;font-weight:700;color:var(--green4);line-height:1.25;margin-bottom:10px}
-    .hero-sub{font-size:14px;color:var(--text3);line-height:1.6;margin-bottom:18px}
-    .hero-pills{display:flex;flex-wrap:wrap;gap:8px}
-    .hero-pill{background:rgba(46,125,50,.25);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--green2);font-weight:500}
-    .free-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(76,175,80,.15);border:1px solid var(--green1);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--green1);margin-bottom:14px}
-    .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .action-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:border-color .2s,transform .15s}
-    .action-card:active{transform:scale(.97)}
-    .action-card.primary{background:linear-gradient(160deg,#1e4d20,#142814);border-color:var(--border2)}
-    .action-icon{font-size:36px;line-height:1}
-    .action-label{font-size:16px;font-weight:700;color:var(--green4)}
-    .action-sub{font-size:11px;color:var(--text3)}
-    .tips-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px}
-    .tips-title{font-size:12px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:14px}
-    .tip-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
-    .tip-row:last-child{margin-bottom:0}
-    .tip-icon{font-size:17px;width:26px;text-align:center;flex-shrink:0}
-    .tip-text{font-size:13px;color:var(--text2);line-height:1.4}
-    .stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
-    .stat-item{padding:14px 10px;text-align:center;border-right:1px solid var(--border)}
-    .stat-item:last-child{border-right:none}
-    .stat-num{font-size:20px;font-weight:700;color:var(--green3);display:block}
-    .stat-lbl{font-size:10px;color:var(--text3);letter-spacing:.5px;margin-top:2px}
-    .dock{position:absolute;bottom:0;left:0;right:0;padding:12px 18px calc(var(--safe-bottom) + 12px);background:rgba(10,26,11,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;gap:10px;z-index:20}
-    .dock-btn{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:14px;color:var(--green2);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;padding:13px 10px;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:background .2s}
-    .dock-btn:active{transform:scale(.97)}
-    .dock-btn.primary{background:linear-gradient(135deg,#2e7d32,#1b5e20);border-color:#2e7d32;color:var(--green4)}
-    .dock-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
-    .loading-screen{background:var(--bg);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px}
-    .loading-orb{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2e7d32,#0a1a0b);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:28px;animation:pulse-orb 2s ease-in-out infinite}
-    @keyframes pulse-orb{0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,.3);transform:scale(1)}50%{box-shadow:0 0 0 20px rgba(76,175,80,0);transform:scale(1.04)}}
-    .loading-dots{display:flex;gap:6px;margin-bottom:22px}
-    .loading-dot{width:8px;height:8px;border-radius:50%;background:var(--green1);animation:dot-bounce 1.4s ease-in-out infinite}
-    .loading-dot:nth-child(2){animation-delay:.2s}
-    .loading-dot:nth-child(3){animation-delay:.4s}
-    @keyframes dot-bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
-    .loading-msg{font-size:18px;font-weight:600;color:var(--green3);margin-bottom:8px;text-align:center}
-    .loading-hint{font-size:13px;color:var(--text4);text-align:center}
-    .result-body{padding:16px 16px calc(var(--safe-bottom) + 24px);display:flex;flex-direction:column;gap:14px}
-    .img-wrap{position:relative;border-radius:18px;overflow:hidden;background:var(--bg3);line-height:0}
-    .result-img{width:100%;display:block;border-radius:18px}
-    .plant-marker{position:absolute;width:28px;height:28px;border-radius:50%;background:var(--accent);border:2.5px solid white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;transform:translate(-50%,-50%);cursor:pointer;transition:transform .15s,background .15s;box-shadow:0 2px 10px rgba(0,0,0,.6);z-index:5}
-    .plant-marker.active{background:var(--accent2);transform:translate(-50%,-50%) scale(1.25)}
-    .scene-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:13px;color:var(--text3);line-height:1.5}
-    .section-heading{font-family:'Lora',serif;font-size:18px;color:var(--green3);font-weight:600}
-    .plant-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;cursor:pointer;transition:border-color .2s,transform .15s;animation:card-in .4s ease both}
-    .plant-card:active{transform:scale(.98)}
-    @keyframes card-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-    .card-num{width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;margin-top:1px}
-    .card-names{flex:1}
-    .card-common{font-size:16px;font-weight:700;color:var(--green4);line-height:1.3}
-    .card-scientific{font-size:12px;color:var(--text3);font-style:italic;margin-top:2px}
-    .card-type-icon{font-size:28px;flex-shrink:0}
-    .card-desc{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:12px}
-    .card-tags{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
-    .tag{border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600}
-    .tag-type{background:var(--bg3);border:1px solid var(--border2);color:var(--green2)}
-    .tag-edible-yes{background:#1a2e1a;border:1px solid #2e7d32;color:#66bb6a}
-    .tag-edible-no{background:#1a1510;border:1px solid #4e342e;color:#a1887f}
-    .tag-edible-toxic{background:#2a0e0e;border:1px solid #7f1616;color:#ef9a9a}
-    .tag-edible-unknown{background:#1a1a1a;border:1px solid #333;color:#9e9e9e}
-    .confidence-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
-    .conf-high{background:#4caf50}.conf-medium{background:#ff9800}.conf-low{background:#f44336}
-    .tag-conf{background:none;color:var(--text3);padding-left:0}
-    .card-hint{font-size:11px;color:var(--border2);margin-top:10px;text-align:right}
-    .save-btn{background:linear-gradient(135deg,#2e7d32,#1b5e20);border:none;border-radius:16px;color:var(--green4);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;padding:16px;width:100%;cursor:pointer}
-    .save-btn:disabled{opacity:.55}
-    .save-btn:active{transform:scale(.98)}
-    .no-results{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;text-align:center}
-    .no-results-icon{font-size:52px}
-    .no-results-title{font-size:20px;font-weight:700;color:var(--green4)}
-    .no-results-sub{font-size:14px;color:var(--text3);line-height:1.6}
-    .detail-body{padding:16px 16px calc(var(--safe-bottom) + 24px);display:flex;flex-direction:column;gap:14px}
-    .detail-hero{background:linear-gradient(135deg,#162b17,#0f2210);border:1px solid var(--border2);border-radius:22px;padding:24px}
-    .detail-hero-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-    .detail-num{width:38px;height:38px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white}
-    .detail-type-icon{font-size:44px}
-    .detail-common{font-family:'Lora',serif;font-size:26px;font-weight:700;color:var(--green4);margin-bottom:6px;line-height:1.2}
-    .detail-scientific{font-size:15px;color:var(--text3);font-style:italic;margin-bottom:16px}
-    .detail-type-pill{display:inline-block;background:rgba(46,125,50,.25);border:1px solid var(--border2);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;color:var(--green2)}
-    .info-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
-    .info-card-label{font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:10px}
-    .info-card-text{font-size:14px;color:var(--text2);line-height:1.65}
-    .edible-card{display:flex;align-items:flex-start;gap:14px;border-radius:16px;padding:16px}
-    .edible-emoji{font-size:30px;flex-shrink:0}
-    .edible-label{font-size:15px;font-weight:700;margin-bottom:6px}
-    .edible-desc{font-size:13px;line-height:1.6}
-    .edible-yes{background:#0f2010;border:1px solid #2e7d32}
-    .edible-no{background:#1a1208;border:1px solid #4e342e}
-    .edible-toxic{background:#200a0a;border:1px solid #7f1616}
-    .edible-unknown{background:var(--card);border:1px solid var(--border)}
-    .disclaimer{background:#161500;border:1px solid #2e2c00;border-radius:14px;padding:14px;font-size:12px;color:#9e9a00;line-height:1.6}
-    .history-body-wrap{padding:16px 16px calc(var(--safe-bottom) + 24px);display:flex;flex-direction:column;gap:12px}
-    .history-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;display:flex}
-    .history-thumb{width:86px;height:86px;object-fit:cover;flex-shrink:0}
-    .history-thumb-empty{width:86px;height:86px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
-    .history-inner{padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:4px}
-    .history-date{font-size:11px;color:var(--text3)}
-    .history-count{font-size:15px;font-weight:700;color:var(--green4)}
-    .history-scene{font-size:12px;color:var(--text4);line-height:1.4}
-    .history-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
-    .history-pill{background:var(--bg3);border-radius:8px;padding:2px 8px;font-size:10px;color:var(--green2)}
-    .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px;text-align:center}
-    .empty-icon{font-size:52px}
-    .empty-title{font-size:22px;font-weight:700;color:var(--green4)}
-    .empty-text{font-size:14px;color:var(--text3);line-height:1.6}
-    .empty-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;color:var(--green2);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;cursor:pointer;margin-top:8px}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
-    .modal-overlay.open{opacity:1;pointer-events:all}
-    .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:24px 24px 0 0;padding:28px 22px calc(var(--safe-bottom) + 28px);width:100%;transform:translateY(40px);transition:transform .3s}
-    .modal-overlay.open .modal{transform:translateY(0)}
-    .modal-title{font-family:'Lora',serif;font-size:22px;color:var(--green3);margin-bottom:8px}
-    .modal-sub{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:20px}
-    .modal-label{font-size:12px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:8px;display:block}
-    .modal-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;color:var(--text1);font-family:'Outfit',sans-serif;font-size:14px;padding:13px 14px;margin-bottom:8px;outline:none;transition:border-color .2s}
-    .modal-input:focus{border-color:var(--green1)}
-    .modal-hint{font-size:12px;color:var(--text4);margin-bottom:20px;line-height:1.6}
-    .modal-hint a{color:var(--green1)}
-    .modal-steps{background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
-    .modal-step{display:flex;gap:10px;align-items:flex-start}
-    .modal-step-num{width:22px;height:22px;border-radius:50%;background:var(--green1);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-    .modal-step-text{font-size:12px;color:var(--text2);line-height:1.5}
-    .modal-step-text a{color:var(--green1)}
-    .modal-save{width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20);border:none;border-radius:14px;color:var(--green4);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;padding:15px;cursor:pointer}
-    .error-box{background:#200a0a;border:1px solid #7f1616;border-radius:14px;padding:16px;color:#ef9a9a;font-size:13px;line-height:1.6;margin:16px}
-    .toast{position:fixed;top:calc(var(--safe-top) + 70px);left:50%;transform:translateX(-50%) translateY(-10px);background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:10px 18px;font-size:13px;color:var(--green2);font-weight:500;opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap;z-index:300;pointer-events:none}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .hidden{display:none!important}
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    html,body { height:100%; overflow:hidden; font-family:'Outfit',sans-serif; background:var(--bg); color:var(--t1); }
+    #app { height:100%; display:flex; flex-direction:column; max-width:480px; margin:0 auto; position:relative; overflow:hidden; }
+
+    /* SCREENS */
+    .screen { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transform:translateY(20px); transition:opacity .3s,transform .3s; }
+    .screen.active { opacity:1; pointer-events:all; transform:translateY(0); }
+    .scroll-body { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .scroll-body::-webkit-scrollbar { display:none; }
+
+    /* BARS */
+    .topbar { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:calc(var(--st) + 12px) 18px 12px; background:var(--bg); border-bottom:1px solid var(--border); }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .brand-icon { width:36px; height:36px; background:var(--bg3); border:1px solid var(--border2); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .brand-name { font-family:'Lora',serif; font-size:22px; font-weight:700; color:var(--g3); }
+    .brand-sub { font-size:9px; color:var(--g1); letter-spacing:2.5px; text-transform:uppercase; }
+    .topbar-btn { background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--g2); font-family:'Outfit',sans-serif; font-size:13px; font-weight:500; padding:7px 13px; cursor:pointer; }
+    .backbar { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:calc(var(--st) + 12px) 18px 12px; background:var(--bg); border-bottom:1px solid var(--border); }
+    .back-btn { display:flex; align-items:center; gap:5px; color:var(--g2); font-size:15px; font-weight:500; background:none; border:none; cursor:pointer; }
+    .back-btn svg { width:18px; height:18px; stroke:var(--g2); fill:none; stroke-width:2; }
+    .bar-title { color:var(--t1); font-size:15px; font-weight:600; }
+    .bar-act { background:none; border:none; color:var(--g1); font-size:13px; font-weight:500; cursor:pointer; }
+
+    /* HOME */
+    .home-body { padding:18px 18px calc(var(--sb) + 110px); display:flex; flex-direction:column; gap:16px; }
+    .hero { background:linear-gradient(135deg,#162b17,#0f2210); border:1px solid var(--border2); border-radius:22px; padding:26px; }
+    .free-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(76,175,80,.15); border:1px solid var(--g1); border-radius:20px; padding:5px 13px; font-size:12px; font-weight:700; color:var(--g1); margin-bottom:14px; }
+    .hero-title { font-family:'Lora',serif; font-size:27px; font-weight:700; color:var(--g4); line-height:1.25; margin-bottom:10px; }
+    .hero-sub { font-size:14px; color:var(--t3); line-height:1.6; margin-bottom:18px; }
+    .hero-pills { display:flex; flex-wrap:wrap; gap:8px; }
+    .pill { background:rgba(46,125,50,.25); border:1px solid var(--border2); border-radius:20px; padding:5px 12px; font-size:12px; color:var(--g2); font-weight:500; }
+    .action-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .act-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px 16px; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; transition:transform .15s; }
+    .act-card:active { transform:scale(.97); }
+    .act-card.primary { background:linear-gradient(160deg,#1e4d20,#142814); border-color:var(--border2); }
+    .act-icon { font-size:36px; line-height:1; }
+    .act-label { font-size:16px; font-weight:700; color:var(--g4); }
+    .act-sub { font-size:11px; color:var(--t3); }
+    .tips-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px; }
+    .tips-title { font-size:11px; color:var(--t3); letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:14px; }
+    .tip-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .tip-row:last-child { margin-bottom:0; }
+    .tip-icon { font-size:17px; width:26px; text-align:center; flex-shrink:0; }
+    .tip-text { font-size:13px; color:var(--t2); line-height:1.4; }
+    .stats { display:grid; grid-template-columns:1fr 1fr 1fr; background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .stat { padding:14px 10px; text-align:center; border-right:1px solid var(--border); }
+    .stat:last-child { border-right:none; }
+    .stat-n { font-size:20px; font-weight:700; color:var(--g3); display:block; }
+    .stat-l { font-size:10px; color:var(--t3); margin-top:2px; }
+
+    /* DOCK */
+    .dock { position:absolute; bottom:0; left:0; right:0; padding:12px 18px calc(var(--sb) + 12px); background:rgba(10,26,11,.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--border); display:flex; gap:10px; z-index:20; }
+    .dock-btn { flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:14px; color:var(--g2); font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; padding:13px 8px; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
+    .dock-btn:active { transform:scale(.97); }
+    .dock-btn.primary { background:linear-gradient(135deg,#2e7d32,#1b5e20); border-color:#2e7d32; color:var(--g4); }
+    .dock-btn svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:2; }
+
+    /* LOADING */
+    .loading-wrap { background:var(--bg); flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; }
+    .orb { width:100px; height:100px; border-radius:50%; background:radial-gradient(circle at 35% 35%,#2e7d32,#0a1a0b); border:2px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:44px; margin-bottom:28px; animation:pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,.3);transform:scale(1)} 50%{box-shadow:0 0 0 20px rgba(76,175,80,0);transform:scale(1.04)} }
+    .dots { display:flex; gap:6px; margin-bottom:22px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--g1); animation:bounce 1.4s ease-in-out infinite; }
+    .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+    @keyframes bounce { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+    .load-msg { font-size:18px; font-weight:600; color:var(--g3); margin-bottom:8px; text-align:center; }
+    .load-hint { font-size:13px; color:var(--t4); text-align:center; }
+
+    /* RESULT */
+    .result-body { padding:16px 16px calc(var(--sb) + 24px); display:flex; flex-direction:column; gap:14px; }
+    .img-wrap { position:relative; border-radius:18px; overflow:hidden; background:var(--bg3); line-height:0; }
+    .result-img { width:100%; display:block; border-radius:18px; }
+    .marker { position:absolute; width:28px; height:28px; border-radius:50%; background:var(--acc); border:2.5px solid white; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:white; transform:translate(-50%,-50%); cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.6); z-index:5; transition:transform .15s,background .15s; }
+    .marker.active { background:var(--acc2); transform:translate(-50%,-50%) scale(1.25); }
+    .scene-box { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; font-size:13px; color:var(--t3); line-height:1.5; }
+    .sec-head { font-family:'Lora',serif; font-size:18px; color:var(--g3); font-weight:600; }
+    .plant-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:16px; cursor:pointer; animation:cardin .4s ease both; }
+    .plant-card:active { transform:scale(.98); }
+    @keyframes cardin { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .card-top { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+    .card-num { width:30px; height:30px; border-radius:50%; background:var(--acc); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:white; flex-shrink:0; margin-top:1px; }
+    .card-names { flex:1; }
+    .card-common { font-size:16px; font-weight:700; color:var(--g4); line-height:1.3; }
+    .card-sci { font-size:12px; color:var(--t3); font-style:italic; margin-top:2px; }
+    .card-emoji { font-size:28px; flex-shrink:0; }
+    .card-desc { font-size:13px; color:var(--t2); line-height:1.55; margin-bottom:12px; }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+    .tag { border-radius:20px; padding:4px 11px; font-size:11px; font-weight:600; }
+    .tag-type { background:var(--bg3); border:1px solid var(--border2); color:var(--g2); }
+    .tag-yes { background:#1a2e1a; border:1px solid #2e7d32; color:#66bb6a; }
+    .tag-no { background:#1a1510; border:1px solid #4e342e; color:#a1887f; }
+    .tag-toxic { background:#2a0e0e; border:1px solid #7f1616; color:#ef9a9a; }
+    .tag-unknown { background:#1a1a1a; border:1px solid #333; color:#9e9e9e; }
+    .cdot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:4px; }
+    .ch{background:#4caf50} .cm{background:#ff9800} .cl{background:#f44336}
+    .tag-conf { background:none; color:var(--t3); padding-left:0; }
+    .card-hint { font-size:11px; color:var(--border2); margin-top:10px; text-align:right; }
+    .save-btn { background:linear-gradient(135deg,#2e7d32,#1b5e20); border:none; border-radius:16px; color:var(--g4); font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; padding:16px; width:100%; cursor:pointer; }
+    .save-btn:disabled { opacity:.55; }
+    .no-plants { display:flex; flex-direction:column; align-items:center; padding:40px 20px; gap:12px; text-align:center; }
+    .err-box { background:#200a0a; border:1px solid #7f1616; border-radius:14px; padding:16px; color:#ef9a9a; font-size:13px; line-height:1.7; margin:16px; }
+
+    /* DETAIL */
+    .detail-body { padding:16px 16px calc(var(--sb) + 24px); display:flex; flex-direction:column; gap:14px; }
+    .d-hero { background:linear-gradient(135deg,#162b17,#0f2210); border:1px solid var(--border2); border-radius:22px; padding:24px; }
+    .d-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .d-num { width:38px; height:38px; border-radius:50%; background:var(--acc); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:white; }
+    .d-emoji { font-size:44px; }
+    .d-common { font-family:'Lora',serif; font-size:26px; font-weight:700; color:var(--g4); margin-bottom:6px; line-height:1.2; }
+    .d-sci { font-size:15px; color:var(--t3); font-style:italic; margin-bottom:16px; }
+    .d-type { display:inline-block; background:rgba(46,125,50,.25); border:1px solid var(--border2); border-radius:20px; padding:6px 16px; font-size:13px; font-weight:600; color:var(--g2); }
+    .info-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; }
+    .info-label { font-size:11px; color:var(--t3); letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:10px; }
+    .info-text { font-size:14px; color:var(--t2); line-height:1.65; }
+    .edible-card { display:flex; align-items:flex-start; gap:14px; border-radius:16px; padding:16px; }
+    .e-emoji { font-size:30px; flex-shrink:0; }
+    .e-label { font-size:15px; font-weight:700; margin-bottom:6px; }
+    .e-desc { font-size:13px; line-height:1.6; }
+    .e-yes{background:#0f2010;border:1px solid #2e7d32} .e-no{background:#1a1208;border:1px solid #4e342e}
+    .e-toxic{background:#200a0a;border:1px solid #7f1616} .e-unknown{background:var(--card);border:1px solid var(--border)}
+    .disclaimer { background:#161500; border:1px solid #2e2c00; border-radius:14px; padding:14px; font-size:12px; color:#9e9a00; line-height:1.6; }
+
+    /* HISTORY */
+    .hist-body { padding:16px 16px calc(var(--sb) + 24px); display:flex; flex-direction:column; gap:12px; }
+    .hist-card { background:var(--card); border:1px solid var(--border); border-radius:18px; overflow:hidden; display:flex; }
+    .hist-thumb { width:86px; height:86px; object-fit:cover; flex-shrink:0; }
+    .hist-thumb-e { width:86px; height:86px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+    .hist-inner { padding:11px 13px; flex:1; display:flex; flex-direction:column; gap:4px; }
+    .hist-date { font-size:11px; color:var(--t3); }
+    .hist-count { font-size:15px; font-weight:700; color:var(--g4); }
+    .hist-scene { font-size:12px; color:var(--t4); line-height:1.4; }
+    .hist-pills { display:flex; flex-wrap:wrap; gap:5px; margin-top:3px; }
+    .hist-pill { background:var(--bg3); border-radius:8px; padding:2px 8px; font-size:10px; color:var(--g2); }
+    .empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; gap:12px; text-align:center; }
+    .empty-icon { font-size:52px; }
+    .empty-title { font-size:22px; font-weight:700; color:var(--g4); }
+    .empty-text { font-size:14px; color:var(--t3); line-height:1.6; }
+    .empty-btn { background:var(--bg3); border:1px solid var(--border2); border-radius:14px; color:var(--g2); font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; padding:12px 24px; cursor:pointer; margin-top:8px; }
+
+    /* MODAL */
+    .modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.85); display:flex; align-items:flex-end; z-index:200; opacity:0; pointer-events:none; transition:opacity .3s; }
+    .modal-ov.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--bg2); border:1px solid var(--border2); border-radius:24px 24px 0 0; padding:28px 22px calc(var(--sb) + 28px); width:100%; transform:translateY(40px); transition:transform .3s; }
+    .modal-ov.open .modal { transform:translateY(0); }
+    .modal-title { font-family:'Lora',serif; font-size:22px; color:var(--g3); margin-bottom:8px; }
+    .modal-sub { font-size:13px; color:var(--t3); line-height:1.6; margin-bottom:20px; }
+    .modal-steps { background:var(--bg3); border-radius:12px; padding:14px; margin-bottom:20px; display:flex; flex-direction:column; gap:10px; }
+    .m-step { display:flex; gap:10px; align-items:flex-start; }
+    .m-step-n { width:22px; height:22px; border-radius:50%; background:var(--g1); color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .m-step-t { font-size:12px; color:var(--t2); line-height:1.5; }
+    .m-step-t a { color:var(--g1); }
+    .modal-label { font-size:12px; color:var(--t3); letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:8px; display:block; }
+    .modal-input { width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; color:var(--t1); font-family:'Outfit',sans-serif; font-size:14px; padding:13px 14px; margin-bottom:8px; outline:none; }
+    .modal-input:focus { border-color:var(--g1); }
+    .modal-hint { font-size:12px; color:var(--t4); margin-bottom:20px; line-height:1.6; }
+    .modal-save { width:100%; background:linear-gradient(135deg,#2e7d32,#1b5e20); border:none; border-radius:14px; color:var(--g4); font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; padding:15px; cursor:pointer; }
+
+    /* TOAST */
+    .toast { position:fixed; top:calc(var(--st) + 70px); left:50%; transform:translateX(-50%) translateY(-10px); background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 18px; font-size:13px; color:var(--g2); font-weight:500; opacity:0; transition:opacity .3s,transform .3s; white-space:nowrap; z-index:300; pointer-events:none; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .hidden { display:none !important; }
   </style>
 </head>
 <body>
@@ -182,39 +191,39 @@
   <!-- HOME -->
   <div class="screen active" id="screen-home">
     <div class="topbar">
-      <div class="topbar-brand">
-        <div class="topbar-icon">🌿</div>
+      <div class="brand">
+        <div class="brand-icon">🌿</div>
         <div>
-          <div class="topbar-name">Plantify</div>
-          <div class="topbar-sub">Plant Identifier</div>
+          <div class="brand-name">Plantify</div>
+          <div class="brand-sub">Plant Identifier</div>
         </div>
       </div>
       <button class="topbar-btn" onclick="showScreen('history')">History</button>
     </div>
     <div class="scroll-body">
       <div class="home-body">
-        <div class="hero-card">
+        <div class="hero">
           <div class="free-badge">✨ Powered by Google Gemini — Free</div>
           <div class="hero-title">Identify any plant in seconds</div>
-          <div class="hero-sub">Point your camera at plants, trees, mushrooms or flowers and get instant AI-powered identification — completely free.</div>
+          <div class="hero-sub">Point your camera at plants, trees, mushrooms or flowers and get instant AI identification — completely free.</div>
           <div class="hero-pills">
-            <span class="hero-pill">🌸 Flowers</span>
-            <span class="hero-pill">🌲 Trees</span>
-            <span class="hero-pill">🍄 Fungi</span>
-            <span class="hero-pill">🌿 Herbs</span>
-            <span class="hero-pill">🌵 Cacti</span>
+            <span class="pill">🌸 Flowers</span>
+            <span class="pill">🌲 Trees</span>
+            <span class="pill">🍄 Fungi</span>
+            <span class="pill">🌿 Herbs</span>
+            <span class="pill">🌵 Cacti</span>
           </div>
         </div>
         <div class="action-grid">
-          <div class="action-card primary" onclick="triggerCamera()">
-            <div class="action-icon">📷</div>
-            <div class="action-label">Camera</div>
-            <div class="action-sub">Take a photo</div>
+          <div class="act-card primary" onclick="triggerCamera()">
+            <div class="act-icon">📷</div>
+            <div class="act-label">Camera</div>
+            <div class="act-sub">Take a photo</div>
           </div>
-          <div class="action-card" onclick="triggerGallery()">
-            <div class="action-icon">🖼️</div>
-            <div class="action-label">Gallery</div>
-            <div class="action-sub">Choose a photo</div>
+          <div class="act-card" onclick="triggerGallery()">
+            <div class="act-icon">🖼️</div>
+            <div class="act-label">Gallery</div>
+            <div class="act-sub">Choose a photo</div>
           </div>
         </div>
         <div class="tips-card">
@@ -224,10 +233,10 @@
           <div class="tip-row"><span class="tip-icon">📐</span><span class="tip-text">Include leaves, flowers, or stem</span></div>
           <div class="tip-row"><span class="tip-icon">🔍</span><span class="tip-text">Works with multiple plants at once</span></div>
         </div>
-        <div class="stats-row">
-          <div class="stat-item"><span class="stat-num">400K+</span><span class="stat-lbl">Species</span></div>
-          <div class="stat-item"><span class="stat-num">Free</span><span class="stat-lbl">Forever</span></div>
-          <div class="stat-item"><span class="stat-num">AI</span><span class="stat-lbl">Powered</span></div>
+        <div class="stats">
+          <div class="stat"><span class="stat-n">400K+</span><span class="stat-l">Species</span></div>
+          <div class="stat"><span class="stat-n">Free</span><span class="stat-l">Forever</span></div>
+          <div class="stat"><span class="stat-n">AI</span><span class="stat-l">Powered</span></div>
         </div>
       </div>
     </div>
@@ -245,21 +254,17 @@
         API Key
       </button>
     </div>
-    <input type="file" id="file-input" accept="image/*" capture="environment" class="hidden" />
-    <input type="file" id="gallery-input" accept="image/*" class="hidden" />
+    <input type="file" id="file-cam" accept="image/*" capture="environment" class="hidden" />
+    <input type="file" id="file-gal" accept="image/*" class="hidden" />
   </div>
 
   <!-- LOADING -->
   <div class="screen" id="screen-loading">
-    <div class="loading-screen">
-      <div class="loading-orb">🌿</div>
-      <div class="loading-dots">
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
-      </div>
-      <div class="loading-msg" id="loading-msg">Scanning for flora...</div>
-      <div class="loading-hint">Usually takes 5–10 seconds</div>
+    <div class="loading-wrap">
+      <div class="orb">🌿</div>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="load-msg" id="load-msg">Scanning for flora...</div>
+      <div class="load-hint">Usually takes 5–10 seconds</div>
     </div>
   </div>
 
@@ -267,11 +272,10 @@
   <div class="screen" id="screen-result">
     <div class="backbar">
       <button class="back-btn" onclick="showScreen('home')">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
       </button>
       <span class="bar-title" id="result-title">Results</span>
-      <button class="bar-action" onclick="shareResult()">Share</button>
+      <button class="bar-act" onclick="shareResult()">Share</button>
     </div>
     <div class="scroll-body"><div class="result-body" id="result-body"></div></div>
   </div>
@@ -280,11 +284,10 @@
   <div class="screen" id="screen-detail">
     <div class="backbar">
       <button class="back-btn" onclick="showScreen('result')">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
       </button>
       <span class="bar-title">Plant Details</span>
-      <button class="bar-action" onclick="sharePlant()">Share</button>
+      <button class="bar-act" onclick="sharePlant()">Share</button>
     </div>
     <div class="scroll-body"><div class="detail-body" id="detail-body"></div></div>
   </div>
@@ -293,391 +296,338 @@
   <div class="screen" id="screen-history">
     <div class="backbar">
       <button class="back-btn" onclick="showScreen('home')">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
       </button>
       <span class="bar-title">History</span>
-      <button class="bar-action" id="clear-btn" onclick="clearHistory()">Clear</button>
+      <button class="bar-act" id="clear-btn" onclick="clearHistory()">Clear</button>
     </div>
-    <div class="scroll-body"><div class="history-body-wrap" id="history-body"></div></div>
+    <div class="scroll-body"><div class="hist-body" id="hist-body"></div></div>
   </div>
 </div>
 
-<!-- API KEY MODAL -->
-<div class="modal-overlay" id="api-modal">
+<!-- MODAL -->
+<div class="modal-ov" id="api-modal">
   <div class="modal">
     <div class="modal-title">🔑 Google Gemini API Key</div>
-    <div class="modal-sub">Plantify uses Google Gemini — it's completely free with no credit card needed.</div>
+    <div class="modal-sub">Completely free — no credit card needed.</div>
     <div class="modal-steps">
-      <div class="modal-step">
-        <div class="modal-step-num">1</div>
-        <div class="modal-step-text">Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></div>
-      </div>
-      <div class="modal-step">
-        <div class="modal-step-num">2</div>
-        <div class="modal-step-text">Sign in with your Google account (Gmail)</div>
-      </div>
-      <div class="modal-step">
-        <div class="modal-step-num">3</div>
-        <div class="modal-step-text">Click <strong>"Create API Key"</strong> — copy it and paste below</div>
-      </div>
+      <div class="m-step"><div class="m-step-n">1</div><div class="m-step-t">Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></div></div>
+      <div class="m-step"><div class="m-step-n">2</div><div class="m-step-t">Sign in with your Google / Gmail account</div></div>
+      <div class="m-step"><div class="m-step-n">3</div><div class="m-step-t">Click <strong>"Create API Key"</strong> — copy and paste below</div></div>
     </div>
     <label class="modal-label">Your Gemini API Key</label>
-    <input type="password" class="modal-input" id="api-key-input" placeholder="AIza..." autocomplete="off" />
-    <div class="modal-hint">Your key is saved only on this device. Free tier: 60 requests/minute — more than enough for personal use.</div>
-    <button class="modal-save" onclick="saveApiKey()">Save &amp; Start Identifying</button>
+    <input type="password" class="modal-input" id="api-input" placeholder="AIza..." autocomplete="off" />
+    <div class="modal-hint">Saved only on this device. Free tier: 60 requests/minute.</div>
+    <button class="modal-save" onclick="saveKey()">Save &amp; Start Identifying</button>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-let currentImageDataURL = null;
-let currentResults = null;
-let currentPlant = null;
-let loadingInterval = null;
+var state = { img: null, results: null, plant: null, loadTimer: null };
 
-const LOADING_MSGS = [
-  'Scanning for flora...','Asking Gemini AI...','Identifying species...',
-  'Cross-referencing database...','Analysing leaf patterns...','Almost there...'
-];
-const TYPE_ICONS = {
-  flower:'🌸',tree:'🌲',shrub:'🌿',mushroom:'🍄',
-  moss:'🟢',fern:'🌿',grass:'🌾',herb:'🌱',vine:'🍃',cactus:'🌵',other:'🌏'
-};
+var MSGS = ['Scanning for flora...','Asking Gemini AI...','Identifying species...','Analysing patterns...','Almost there...'];
+var ICONS = {flower:'🌸',tree:'🌲',shrub:'🌿',mushroom:'🍄',moss:'🟢',fern:'🌿',grass:'🌾',herb:'🌱',vine:'🍃',cactus:'🌵',other:'🌏'};
 
-function getApiKey(){ return localStorage.getItem('plantify_gemini_key')||''; }
-function setApiKey(k){ localStorage.setItem('plantify_gemini_key',k); }
-function getHistory(){ try{ return JSON.parse(localStorage.getItem('plantify_history')||'[]'); }catch(e){ return []; } }
-function setHistory(h){ localStorage.setItem('plantify_history',JSON.stringify(h)); }
+var PROMPT = 'You are an expert botanist. Analyze this image and identify ALL visible botanical organisms.\n\nRespond ONLY with raw JSON (no markdown, no code fences):\n{"sceneDescription":"one sentence","plants":[{"number":1,"common":"Name","scientific":"Latin name","type":"flower","description":"One sentence about appearance.","details":"2-3 sentences of facts.","edible":"yes","confidence":"high","x":45,"y":60}]}\n\ntype: flower|tree|shrub|mushroom|moss|fern|grass|herb|vine|cactus|other\nedible: yes|no|toxic|unknown\nconfidence: high|medium|low\nx,y: % position of plant center from top-left (0-100)\n\nIf no plants visible: {"sceneDescription":"No plant life detected","plants":[]}';
 
-function showScreen(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
-  if(name==='history') renderHistory();
+function getKey() { return localStorage.getItem('plantify_gemini_key') || ''; }
+function setKey(k) { localStorage.setItem('plantify_gemini_key', k); }
+function getHist() { try { return JSON.parse(localStorage.getItem('plantify_hist') || '[]'); } catch(e) { return []; } }
+function setHist(h) { localStorage.setItem('plantify_hist', JSON.stringify(h)); }
+
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-' + n).classList.add('active');
+  if (n === 'history') renderHist();
 }
 
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2800);
 }
 
-function showApiModal(){
-  document.getElementById('api-key-input').value=getApiKey();
+function showApiModal() {
+  document.getElementById('api-input').value = getKey();
   document.getElementById('api-modal').classList.add('open');
 }
-function hideApiModal(){ document.getElementById('api-modal').classList.remove('open'); }
-function saveApiKey(){
-  const val=document.getElementById('api-key-input').value.trim();
-  if(!val){ showToast('Please enter your API key'); return; }
-  setApiKey(val); hideApiModal(); showToast('✓ API key saved — ready to identify!');
+function hideApiModal() { document.getElementById('api-modal').classList.remove('open'); }
+function saveKey() {
+  var v = document.getElementById('api-input').value.trim();
+  if (!v) { toast('Please enter your API key'); return; }
+  setKey(v);
+  hideApiModal();
+  toast('✓ API key saved!');
 }
-document.getElementById('api-modal').addEventListener('click',e=>{
-  if(e.target===document.getElementById('api-modal')) hideApiModal();
+document.getElementById('api-modal').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('api-modal')) hideApiModal();
 });
 
-function triggerCamera(){ if(!getApiKey()){ showApiModal(); return; } document.getElementById('file-input').click(); }
-function triggerGallery(){ if(!getApiKey()){ showApiModal(); return; } document.getElementById('gallery-input').click(); }
-document.getElementById('file-input').addEventListener('change',e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); e.target.value=''; });
-document.getElementById('gallery-input').addEventListener('change',e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); e.target.value=''; });
+function triggerCamera() { if (!getKey()) { showApiModal(); return; } document.getElementById('file-cam').click(); }
+function triggerGallery() { if (!getKey()) { showApiModal(); return; } document.getElementById('file-gal').click(); }
 
-function handleFile(file){
-  const reader=new FileReader();
-  reader.onload=ev=>{ currentImageDataURL=ev.target.result; identify(ev.target.result); };
+document.getElementById('file-cam').addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) { handleFile(e.target.files[0]); e.target.value = ''; }
+});
+document.getElementById('file-gal').addEventListener('change', function(e) {
+  if (e.target.files && e.target.files[0]) { handleFile(e.target.files[0]); e.target.value = ''; }
+});
+
+function handleFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(ev) { state.img = ev.target.result; identify(ev.target.result); };
   reader.readAsDataURL(file);
 }
 
-function resizeImage(dataURL){
-  return new Promise(resolve=>{
-    const img=new Image();
-    img.onload=()=>{
-      const MAX=1120;
-      let w=img.width,h=img.height;
-      if(w>h&&w>MAX){ h=Math.round(h*MAX/w); w=MAX; }
-      else if(h>MAX){ w=Math.round(w*MAX/h); h=MAX; }
-      const canvas=document.createElement('canvas');
-      canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      resolve(canvas.toDataURL('image/jpeg',0.82));
-    };
-    img.onerror=()=>resolve(dataURL);
-    img.src=dataURL;
+function resizeImg(dataURL, cb) {
+  var img = new Image();
+  img.onload = function() {
+    var MAX = 1120, w = img.width, h = img.height;
+    if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+    else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    cb(c.toDataURL('image/jpeg', 0.82));
+  };
+  img.onerror = function() { cb(dataURL); };
+  img.src = dataURL;
+}
+
+function startLoad() {
+  showScreen('loading');
+  var idx = 0;
+  document.getElementById('load-msg').textContent = MSGS[0];
+  state.loadTimer = setInterval(function() {
+    idx = (idx + 1) % MSGS.length;
+    document.getElementById('load-msg').textContent = MSGS[idx];
+  }, 1800);
+}
+function stopLoad() { clearInterval(state.loadTimer); }
+
+function identify(dataURL) {
+  startLoad();
+  resizeImg(dataURL, function(resized) {
+    state.img = resized;
+    var b64 = resized.split(',')[1];
+
+    fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': getKey() },
+      body: JSON.stringify({ image: b64, prompt: PROMPT })
+    })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        return { ok: res.ok, status: res.status, data: data };
+      });
+    })
+    .then(function(r) {
+      stopLoad();
+      if (!r.ok) {
+        showError(r.data.error || 'API error ' + r.status);
+        return;
+      }
+      var raw = r.data.text || '';
+      if (!raw) { showError('Empty response from Gemini. Please try again.'); return; }
+
+      // Strip any markdown fences Gemini might add
+      var cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+      var start = cleaned.indexOf('{');
+      var end = cleaned.lastIndexOf('}');
+      if (start === -1) { showError('Unexpected response: ' + raw.slice(0, 120)); return; }
+
+      try {
+        state.results = JSON.parse(cleaned.slice(start, end + 1));
+        renderResult();
+      } catch(e) {
+        showError('Could not parse response: ' + cleaned.slice(0, 120));
+      }
+    })
+    .catch(function(err) {
+      stopLoad();
+      showError('Network error: ' + err.message);
+    });
   });
 }
 
-function startLoading(){
-  showScreen('loading');
-  let idx=0;
-  document.getElementById('loading-msg').textContent=LOADING_MSGS[0];
-  loadingInterval=setInterval(()=>{
-    idx=(idx+1)%LOADING_MSGS.length;
-    document.getElementById('loading-msg').textContent=LOADING_MSGS[idx];
-  },1800);
-}
-function stopLoading(){ clearInterval(loadingInterval); }
-
-const PROMPT = `You are an expert botanist and mycologist. Analyze this image and identify ALL visible botanical organisms: plants, trees, flowers, mushrooms, mosses, ferns, grasses, herbs, vines, cacti, shrubs.
-
-Respond ONLY with valid JSON — no markdown, no code blocks, no explanation before or after:
-{"sceneDescription":"one sentence scene description","plants":[{"number":1,"common":"Common name","scientific":"Scientific name","type":"flower","description":"One vivid sentence about appearance.","details":"2-3 sentences about ecology or interesting facts.","edible":"yes","confidence":"high","x":45,"y":60}]}
-
-Types: flower, tree, shrub, mushroom, moss, fern, grass, herb, vine, cactus, other
-Edible: yes, no, toxic, unknown
-Confidence: high, medium, low
-x and y = percentage position of plant center from top-left (0-100)
-
-If no plants visible: {"sceneDescription":"No plant life detected","plants":[]}`;
-
-async function identify(dataURL){
-  startLoading();
-  try{
-    const resized=await resizeImage(dataURL);
-    currentImageDataURL=resized;
-    const base64=resized.split(',')[1];
-
-    const res=await fetch('/api/proxy',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':getApiKey()
-      },
-      body:JSON.stringify({ image: base64, prompt: PROMPT })
-    });
-
-    const data=await res.json();
-
-let data;
-try {
-  data = await res.json();
-} catch(e) {
-  throw new Error('Could not read server response: ' + e.message);
-}
-
-if (!res.ok) {
-  throw new Error(data?.error || `API error ${res.status}`);
-}
-
-const rawText = data?.text || '';
-if (!rawText) throw new Error('Gemini returned empty text. Try again.');
-
-// Strip markdown code fences if present
-const stripped = rawText.replace(/```json\s*/gi,'').replace(/```\s*/gi,'').trim();
-
-const jsonStart = stripped.indexOf('{');
-const jsonEnd = stripped.lastIndexOf('}');
-if (jsonStart === -1) throw new Error('Bad AI response: ' + rawText.slice(0,100));
-const jsonStr = stripped.slice(jsonStart, jsonEnd + 1);
-
-try {
-  currentResults = JSON.parse(jsonStr);
-} catch(e) {
-  throw new Error('JSON parse failed: ' + jsonStr.slice(0,100));
-}
-    stopLoading();
-    renderResult();
-  }catch(e){
-    stopLoading();
-    showScreen('result');
-    document.getElementById('result-title').textContent='Error';
-    document.getElementById('result-body').innerHTML=`
-      <div class="error-box">
-        <strong>Something went wrong</strong><br/><br/>
-        ${escHtml(e.message)}<br/><br/>
-        Common fixes:<br/>
-        • Check your Gemini API key is correct (tap API Key button)<br/>
-        • Make sure the key is from <strong>aistudio.google.com</strong><br/>
-        • Try a different or clearer photo
-      </div>
-      <div style="padding:0 16px">
-        <button class="save-btn" onclick="showScreen('home')">← Try Again</button>
-      </div>`;
-  }
-}
-
-function renderResult(){
+function showError(msg) {
   showScreen('result');
-  const plants=currentResults?.plants||[];
-  document.getElementById('result-title').textContent=
-    plants.length>0?`${plants.length} plant${plants.length!==1?'s':''} found`:'No plants found';
-
-  let html=`<div class="img-wrap" id="img-wrap">
-    <img class="result-img" id="result-img" src="${currentImageDataURL}" alt="Photo" />
-  </div>`;
-
-  if(currentResults?.sceneDescription){
-    html+=`<div class="scene-box">📍 ${escHtml(currentResults.sceneDescription)}</div>`;
-  }
-
-  if(plants.length===0){
-    html+=`<div class="no-results">
-      <div class="no-results-icon">🔍</div>
-      <div class="no-results-title">No plants detected</div>
-      <div class="no-results-sub">Try a clearer photo with visible plant life in good lighting.</div>
-    </div>`;
-  }else{
-    html+=`<div class="section-heading">Identified Plants</div>`;
-    plants.forEach((p,i)=>{
-      const edibleLabel={yes:'✅ Edible',no:'🚫 Not edible',toxic:'☠️ Toxic',unknown:'❓ Unknown'}[p.edible]||'❓ Unknown';
-      html+=`<div class="plant-card" id="card-${p.number}" style="animation-delay:${i*.07}s" onclick="showDetail(${p.number})">
-        <div class="card-top">
-          <div class="card-num">${p.number}</div>
-          <div class="card-names">
-            <div class="card-common">${escHtml(p.common)}</div>
-            <div class="card-scientific">${escHtml(p.scientific)}</div>
-          </div>
-          <div class="card-type-icon">${TYPE_ICONS[p.type]||'🌱'}</div>
-        </div>
-        <div class="card-desc">${escHtml(p.description)}</div>
-        <div class="card-tags">
-          <span class="tag tag-type">${escHtml(p.type)}</span>
-          <span class="tag tag-edible-${p.edible}">${edibleLabel}</span>
-          <span class="tag tag-conf"><span class="confidence-dot conf-${p.confidence}"></span>${p.confidence} confidence</span>
-        </div>
-        <div class="card-hint">Tap for full details →</div>
-      </div>`;
-    });
-    html+=`<button class="save-btn" id="save-btn" onclick="saveToHistory()">💾 Save to History</button>`;
-  }
-
-  document.getElementById('result-body').innerHTML=html;
-
-  const img=document.getElementById('result-img');
-  function addMarkers(){
-    const wrap=document.getElementById('img-wrap');
-    plants.forEach(p=>{
-      const m=document.createElement('button');
-      m.className='plant-marker';
-      m.textContent=p.number;
-      m.style.left=p.x+'%';
-      m.style.top=(p.y/100*img.offsetHeight)+'px';
-      m.onclick=()=>{
-        document.querySelectorAll('.plant-marker').forEach(x=>x.classList.remove('active'));
-        m.classList.add('active');
-        document.getElementById('card-'+p.number)?.scrollIntoView({behavior:'smooth',block:'nearest'});
-      };
-      wrap.appendChild(m);
-    });
-  }
-  if(img.complete&&img.naturalWidth) addMarkers(); else img.onload=addMarkers;
+  document.getElementById('result-title').textContent = 'Error';
+  document.getElementById('result-body').innerHTML =
+    '<div class="err-box"><strong>Something went wrong</strong><br/><br/>' + esc(msg) +
+    '<br/><br/>Common fixes:<br/>• Check your Gemini API key (tap API Key button)<br/>• Make sure key is from aistudio.google.com<br/>• Try a different photo</div>' +
+    '<div style="padding:0 16px"><button class="save-btn" onclick="showScreen(\'home\')">← Try Again</button></div>';
 }
 
-function showDetail(num){
-  const p=(currentResults?.plants||[]).find(x=>x.number===num);
-  if(!p) return;
-  currentPlant=p;
-  const ec={
-    yes:{cls:'edible-yes',emoji:'✅',label:'Edible',desc:'This plant is known to be edible. Always verify with a local expert before foraging.'},
-    no:{cls:'edible-no',emoji:'🚫',label:'Not edible',desc:'This plant is not typically consumed as food.'},
-    toxic:{cls:'edible-toxic',emoji:'☠️',label:'Toxic / Poisonous',desc:'WARNING: This plant may be toxic or poisonous. Do not ingest. Keep away from children and pets.'},
-    unknown:{cls:'edible-unknown',emoji:'❓',label:'Edibility unknown',desc:'Edibility data unavailable. Do not consume without expert verification.'}
-  }[p.edible]||{cls:'edible-unknown',emoji:'❓',label:'Unknown',desc:''};
-  const cc={high:'#4caf50',medium:'#ff9800',low:'#f44336'}[p.confidence]||'#9e9e9e';
-  const cd={high:'Gemini AI is highly confident in this identification.',medium:'Consider verifying with a field guide or botanist.',low:'This identification is uncertain. Expert verification recommended.'}[p.confidence]||'';
+function renderResult() {
+  showScreen('result');
+  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+  document.getElementById('result-title').textContent =
+    plants.length > 0 ? plants.length + ' plant' + (plants.length !== 1 ? 's' : '') + ' found' : 'No plants found';
 
-  document.getElementById('detail-body').innerHTML=`
-    <div class="detail-hero">
-      <div class="detail-hero-top"><div class="detail-num">${p.number}</div><div class="detail-type-icon">${TYPE_ICONS[p.type]||'🌱'}</div></div>
-      <div class="detail-common">${escHtml(p.common)}</div>
-      <div class="detail-scientific">${escHtml(p.scientific)}</div>
-      <div class="detail-type-pill">${escHtml(p.type.charAt(0).toUpperCase()+p.type.slice(1))}</div>
-    </div>
-    <div class="info-card" style="border-color:${cc}44">
-      <div class="info-card-label">Confidence</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <div style="width:8px;height:8px;border-radius:50%;background:${cc};flex-shrink:0"></div>
-        <span style="font-size:13px;font-weight:700;color:${cc}">${p.confidence.charAt(0).toUpperCase()+p.confidence.slice(1)} confidence</span>
-      </div>
-      <div class="info-card-text">${cd}</div>
-    </div>
-    <div class="info-card">
-      <div class="info-card-label">About</div>
-      <div class="info-card-text">${escHtml(p.description)}</div>
-      ${p.details?`<div class="info-card-text" style="margin-top:10px">${escHtml(p.details)}</div>`:''}
-    </div>
-    <div class="edible-card ${ec.cls}">
-      <div class="edible-emoji">${ec.emoji}</div>
-      <div><div class="edible-label">${ec.label}</div><div class="edible-desc">${ec.desc}</div></div>
-    </div>
-    <div class="disclaimer">⚠️ Plantify is an AI tool for educational purposes. Always verify plant identification with a certified botanist or field expert before foraging or handling unknown plants.</div>`;
+  var html = '<div class="img-wrap" id="img-wrap"><img class="result-img" id="result-img" src="' + state.img + '" alt="Photo"/></div>';
+
+  if (state.results && state.results.sceneDescription) {
+    html += '<div class="scene-box">📍 ' + esc(state.results.sceneDescription) + '</div>';
+  }
+
+  if (plants.length === 0) {
+    html += '<div class="no-plants"><div style="font-size:52px">🔍</div><div style="font-size:20px;font-weight:700;color:var(--g4)">No plants detected</div><div style="font-size:14px;color:var(--t3)">Try a clearer photo with visible plant life.</div></div>';
+  } else {
+    html += '<div class="sec-head">Identified Plants</div>';
+    for (var i = 0; i < plants.length; i++) {
+      var p = plants[i];
+      var eLabel = {yes:'✅ Edible',no:'🚫 Not edible',toxic:'☠️ Toxic',unknown:'❓ Unknown'}[p.edible] || '❓ Unknown';
+      var eClass = 'tag-' + (p.edible || 'unknown');
+      html += '<div class="plant-card" id="card-' + p.number + '" style="animation-delay:' + (i * 0.07) + 's" onclick="showDetail(' + p.number + ')">' +
+        '<div class="card-top">' +
+          '<div class="card-num">' + p.number + '</div>' +
+          '<div class="card-names"><div class="card-common">' + esc(p.common) + '</div><div class="card-sci">' + esc(p.scientific) + '</div></div>' +
+          '<div class="card-emoji">' + (ICONS[p.type] || '🌱') + '</div>' +
+        '</div>' +
+        '<div class="card-desc">' + esc(p.description) + '</div>' +
+        '<div class="tags">' +
+          '<span class="tag tag-type">' + esc(p.type) + '</span>' +
+          '<span class="tag ' + eClass + '">' + eLabel + '</span>' +
+          '<span class="tag tag-conf"><span class="cdot c' + (p.confidence||'m').charAt(0) + '"></span>' + (p.confidence||'medium') + '</span>' +
+        '</div>' +
+        '<div class="card-hint">Tap for full details →</div>' +
+      '</div>';
+    }
+    html += '<button class="save-btn" id="save-btn" onclick="saveToHist()">💾 Save to History</button>';
+  }
+
+  document.getElementById('result-body').innerHTML = html;
+
+  var img = document.getElementById('result-img');
+  function addMarkers() {
+    var wrap = document.getElementById('img-wrap');
+    for (var i = 0; i < plants.length; i++) {
+      (function(p) {
+        var m = document.createElement('button');
+        m.className = 'marker';
+        m.textContent = p.number;
+        m.style.left = p.x + '%';
+        m.style.top = (p.y / 100 * img.offsetHeight) + 'px';
+        m.onclick = function() {
+          document.querySelectorAll('.marker').forEach(function(x) { x.classList.remove('active'); });
+          m.classList.add('active');
+          var card = document.getElementById('card-' + p.number);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+        wrap.appendChild(m);
+      })(plants[i]);
+    }
+  }
+  if (img.complete && img.naturalWidth) { addMarkers(); } else { img.onload = addMarkers; }
+}
+
+function showDetail(num) {
+  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+  var p = null;
+  for (var i = 0; i < plants.length; i++) { if (plants[i].number === num) { p = plants[i]; break; } }
+  if (!p) return;
+  state.plant = p;
+
+  var ec = {
+    yes:  {cls:'e-yes',   emoji:'✅', label:'Edible',            desc:'Known to be edible. Always verify with a local expert before foraging.'},
+    no:   {cls:'e-no',    emoji:'🚫', label:'Not edible',         desc:'Not typically consumed as food.'},
+    toxic:{cls:'e-toxic', emoji:'☠️', label:'Toxic / Poisonous',  desc:'WARNING: May be toxic or poisonous. Do not ingest. Keep away from children and pets.'},
+    unknown:{cls:'e-unknown',emoji:'❓',label:'Edibility unknown', desc:'Do not consume without expert verification.'}
+  }[p.edible] || {cls:'e-unknown',emoji:'❓',label:'Unknown',desc:''};
+
+  var cc = {high:'#4caf50',medium:'#ff9800',low:'#f44336'}[p.confidence] || '#9e9e9e';
+  var cd = {high:'Gemini AI is highly confident.',medium:'Consider verifying with a field guide.',low:'Uncertain — expert verification recommended.'}[p.confidence] || '';
+
+  document.getElementById('detail-body').innerHTML =
+    '<div class="d-hero">' +
+      '<div class="d-top"><div class="d-num">' + p.number + '</div><div class="d-emoji">' + (ICONS[p.type]||'🌱') + '</div></div>' +
+      '<div class="d-common">' + esc(p.common) + '</div>' +
+      '<div class="d-sci">' + esc(p.scientific) + '</div>' +
+      '<div class="d-type">' + esc(p.type.charAt(0).toUpperCase() + p.type.slice(1)) + '</div>' +
+    '</div>' +
+    '<div class="info-card" style="border-color:' + cc + '44">' +
+      '<div class="info-label">Confidence</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:' + cc + ';flex-shrink:0"></div><span style="font-size:13px;font-weight:700;color:' + cc + '">' + p.confidence + '</span></div>' +
+      '<div class="info-text">' + cd + '</div>' +
+    '</div>' +
+    '<div class="info-card">' +
+      '<div class="info-label">About</div>' +
+      '<div class="info-text">' + esc(p.description) + '</div>' +
+      (p.details ? '<div class="info-text" style="margin-top:10px">' + esc(p.details) + '</div>' : '') +
+    '</div>' +
+    '<div class="edible-card ' + ec.cls + '">' +
+      '<div class="e-emoji">' + ec.emoji + '</div>' +
+      '<div><div class="e-label">' + ec.label + '</div><div class="e-desc">' + ec.desc + '</div></div>' +
+    '</div>' +
+    '<div class="disclaimer">⚠️ Plantify is an AI tool for educational purposes. Always verify identification with a certified botanist before foraging or handling unknown plants.</div>';
+
   showScreen('detail');
 }
 
-function saveToHistory(){
-  const plants=currentResults?.plants||[];
-  if(!plants.length) return;
-  const h=getHistory();
-  h.unshift({
-    id:Date.now().toString(),
-    date:new Date().toISOString(),
-    imageDataURL:currentImageDataURL,
-    plants:plants.map(p=>({common:p.common,type:p.type})),
-    count:plants.length,
-    sceneDescription:currentResults?.sceneDescription||''
-  });
-  setHistory(h.slice(0,30));
-  const btn=document.getElementById('save-btn');
-  if(btn){ btn.textContent='✓ Saved to History'; btn.disabled=true; }
-  showToast('Saved to history!');
+function saveToHist() {
+  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+  if (!plants.length) return;
+  var h = getHist();
+  h.unshift({ id: Date.now().toString(), date: new Date().toISOString(), img: state.img, plants: plants.map(function(p) { return {common:p.common,type:p.type}; }), count: plants.length, scene: (state.results && state.results.sceneDescription) || '' });
+  setHist(h.slice(0, 30));
+  var btn = document.getElementById('save-btn');
+  if (btn) { btn.textContent = '✓ Saved to History'; btn.disabled = true; }
+  toast('Saved to history!');
 }
 
-function renderHistory(){
-  const h=getHistory();
-  const clearBtn=document.getElementById('clear-btn');
-  if(h.length===0){
-    clearBtn.style.display='none';
-    document.getElementById('history-body').innerHTML=`
-      <div class="empty-state">
-        <div class="empty-icon">📚</div>
-        <div class="empty-title">No history yet</div>
-        <div class="empty-text">Identify some plants and save them — they'll appear here.</div>
-        <button class="empty-btn" onclick="showScreen('home')">Identify a plant</button>
-      </div>`;
+function renderHist() {
+  var h = getHist();
+  var cb = document.getElementById('clear-btn');
+  if (h.length === 0) {
+    cb.style.display = 'none';
+    document.getElementById('hist-body').innerHTML = '<div class="empty"><div class="empty-icon">📚</div><div class="empty-title">No history yet</div><div class="empty-text">Identify some plants and save them.</div><button class="empty-btn" onclick="showScreen(\'home\')">Identify a plant</button></div>';
     return;
   }
-  clearBtn.style.display='';
-  document.getElementById('history-body').innerHTML=h.map(entry=>`
-    <div class="history-card">
-      ${entry.imageDataURL
-        ?`<img class="history-thumb" src="${entry.imageDataURL}" alt=""/>`
-        :`<div class="history-thumb-empty">🌿</div>`}
-      <div class="history-inner">
-        <div class="history-date">${formatDate(entry.date)}</div>
-        <div class="history-count">${entry.count} plant${entry.count!==1?'s':''} found</div>
-        ${entry.sceneDescription?`<div class="history-scene">${escHtml(entry.sceneDescription)}</div>`:''}
-        <div class="history-pills">
-          ${entry.plants.slice(0,4).map(p=>`<span class="history-pill">${TYPE_ICONS[p.type]||'🌱'} ${escHtml(p.common)}</span>`).join('')}
-          ${entry.plants.length>4?`<span class="history-pill">+${entry.plants.length-4} more</span>`:''}
-        </div>
-      </div>
-    </div>`).join('');
+  cb.style.display = '';
+  document.getElementById('hist-body').innerHTML = h.map(function(e) {
+    return '<div class="hist-card">' +
+      (e.img ? '<img class="hist-thumb" src="' + e.img + '" alt=""/>' : '<div class="hist-thumb-e">🌿</div>') +
+      '<div class="hist-inner">' +
+        '<div class="hist-date">' + fmtDate(e.date) + '</div>' +
+        '<div class="hist-count">' + e.count + ' plant' + (e.count !== 1 ? 's' : '') + ' found</div>' +
+        (e.scene ? '<div class="hist-scene">' + esc(e.scene) + '</div>' : '') +
+        '<div class="hist-pills">' +
+          e.plants.slice(0, 4).map(function(p) { return '<span class="hist-pill">' + (ICONS[p.type]||'🌱') + ' ' + esc(p.common) + '</span>'; }).join('') +
+          (e.plants.length > 4 ? '<span class="hist-pill">+' + (e.plants.length - 4) + ' more</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
-function clearHistory(){
-  if(!confirm('Delete all saved identifications?')) return;
-  setHistory([]); renderHistory();
+function clearHistory() {
+  if (!confirm('Delete all saved identifications?')) return;
+  setHist([]); renderHist();
 }
 
-function shareResult(){
-  const plants=currentResults?.plants||[];
-  const list=plants.map(p=>`${p.number}. ${p.common} (${p.scientific})`).join('\n');
-  const text=`Identified ${plants.length} plant${plants.length!==1?'s':''} with Plantify 🌿\n\n${list}\n\nTry Plantify — free plant identification!`;
-  if(navigator.share) navigator.share({title:'Plantify Results',text});
-  else navigator.clipboard?.writeText(text).then(()=>showToast('Copied to clipboard!'));
+function shareResult() {
+  var plants = (state.results && state.results.plants) ? state.results.plants : [];
+  var list = plants.map(function(p) { return p.number + '. ' + p.common + ' (' + p.scientific + ')'; }).join('\n');
+  var text = 'Identified ' + plants.length + ' plant' + (plants.length !== 1 ? 's' : '') + ' with Plantify 🌿\n\n' + list + '\n\nTry Plantify — free plant identification!';
+  if (navigator.share) { navigator.share({title:'Plantify Results', text:text}); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function() { toast('Copied to clipboard!'); }); }
 }
-function sharePlant(){
-  if(!currentPlant) return;
-  const text=`🌿 ${currentPlant.common} (${currentPlant.scientific})\n\n${currentPlant.description}\n\n${currentPlant.details||''}\n\nIdentified with Plantify`;
-  if(navigator.share) navigator.share({title:currentPlant.common,text});
-  else navigator.clipboard?.writeText(text).then(()=>showToast('Copied!'));
+function sharePlant() {
+  if (!state.plant) return;
+  var text = '🌿 ' + state.plant.common + ' (' + state.plant.scientific + ')\n\n' + state.plant.description + '\n\n' + (state.plant.details||'') + '\n\nIdentified with Plantify';
+  if (navigator.share) { navigator.share({title: state.plant.common, text:text}); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function() { toast('Copied!'); }); }
 }
 
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function formatDate(iso){ return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
 
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-if(!getApiKey()) setTimeout(showApiModal,800);
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function(){}); }
+if (!getKey()) { setTimeout(showApiModal, 800); }
 </script>
 </body>
 </html>
