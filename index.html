@@ -397,18 +397,25 @@ function identify() {
       }
 
       var raw = r.data.text || '';
-      if (!raw) { showErr('Empty response from Gemini. Please try again.'); return; }
-
-      var clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
-      var a = clean.indexOf('{');
-      var b = clean.lastIndexOf('}');
-      if (a === -1) { showErr('Unexpected response. Please try again.'); return; }
+      if (!raw) { showErr('Empty response. Please try again.'); return; }
 
       try {
-        S.res = JSON.parse(clean.slice(a, b + 1));
+        // Proxy now returns pre-cleaned JSON string
+        var parsed = JSON.parse(raw);
+        S.res = parsed;
         renderResult();
       } catch(e) {
-        showErr('Could not read AI response. Please try again.');
+        // Fallback: try to extract JSON manually
+        try {
+          var clean = raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+          var a = clean.indexOf('{');
+          var b = clean.lastIndexOf('}');
+          if (a === -1) { showErr('Bad response: ' + raw.slice(0,80)); return; }
+          S.res = JSON.parse(clean.slice(a, b+1));
+          renderResult();
+        } catch(e2) {
+          showErr('Parse failed: ' + raw.slice(0,80));
+        }
       }
     }).catch(function(err) {
       if (timedOut || done) return;
