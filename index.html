@@ -21,7 +21,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .scr.on{opacity:1;pointer-events:all;transform:translateY(0)}
 .sb{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .sb::-webkit-scrollbar{display:none}
-/* bars */
 .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st) + 12px) 18px 12px;background:var(--bg);border-bottom:1px solid var(--b1)}
 .brand{display:flex;align-items:center;gap:10px}
 .bico{width:36px;height:36px;background:var(--bg3);border:1px solid var(--b2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
@@ -33,7 +32,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .bbk svg{width:18px;height:18px;stroke:var(--g2);fill:none;stroke-width:2}
 .btit{color:var(--t1);font-size:15px;font-weight:600}
 .bact{background:none;border:none;color:var(--g1);font-size:13px;font-weight:500;cursor:pointer}
-/* home */
 .hbody{padding:18px 18px calc(var(--sb) + 110px);display:flex;flex-direction:column;gap:16px}
 .hero{background:linear-gradient(135deg,#162b17,#0f2210);border:1px solid var(--b2);border-radius:22px;padding:26px}
 .fbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(76,175,80,.15);border:1px solid var(--g1);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--g1);margin-bottom:14px}
@@ -59,13 +57,11 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .stat:last-child{border-right:none}
 .sn{font-size:20px;font-weight:700;color:var(--g3);display:block}
 .sl{font-size:10px;color:var(--t3);margin-top:2px}
-/* dock */
 .dock{position:absolute;bottom:0;left:0;right:0;padding:12px 18px calc(var(--sb) + 12px);background:rgba(10,26,11,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--b1);display:flex;gap:10px;z-index:20}
 .dbtn{flex:1;background:var(--bg3);border:1px solid var(--b1);border-radius:14px;color:var(--g2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:13px 8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .dbtn:active{transform:scale(.97)}
 .dbtn.pri{background:linear-gradient(135deg,#2e7d32,#1b5e20);border-color:#2e7d32;color:var(--g4)}
 .dbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
-/* loading */
 .lw{background:var(--bg);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px}
 .orb{width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2e7d32,#0a1a0b);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:28px;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,.3);transform:scale(1)}50%{box-shadow:0 0 0 20px rgba(76,175,80,0);transform:scale(1.04)}}
@@ -75,7 +71,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 @keyframes bnc{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
 .lmsg{font-size:18px;font-weight:600;color:var(--g3);margin-bottom:8px;text-align:center}
 .lhint{font-size:13px;color:var(--t4);text-align:center}
-/* result */
 .rbody{padding:16px 16px calc(var(--sb) + 24px);display:flex;flex-direction:column;gap:14px}
 .iw{position:relative;border-radius:18px;overflow:hidden;background:var(--bg3);line-height:0}
 .rimg{width:100%;display:block;border-radius:18px}
@@ -109,7 +104,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .sbtn:active{transform:scale(.98)}
 .nop{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;text-align:center}
 .errbox{background:#200a0a;border:1px solid #7f1616;border-radius:14px;padding:16px;color:#ef9a9a;font-size:13px;line-height:1.7;margin:16px}
-/* detail */
 .dbody{padding:16px 16px calc(var(--sb) + 24px);display:flex;flex-direction:column;gap:14px}
 .dhero{background:linear-gradient(135deg,#162b17,#0f2210);border:1px solid var(--b2);border-radius:22px;padding:24px}
 .dtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
@@ -128,7 +122,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .eyes{background:#0f2010;border:1px solid #2e7d32}.eno{background:#1a1208;border:1px solid #4e342e}
 .etox{background:#200a0a;border:1px solid #7f1616}.eunk{background:var(--card);border:1px solid var(--b1)}
 .disc{background:#161500;border:1px solid #2e2c00;border-radius:14px;padding:14px;font-size:12px;color:#9e9a00;line-height:1.6}
-/* history */
 .hsbody{padding:16px 16px calc(var(--sb) + 24px);display:flex;flex-direction:column;gap:12px}
 .hcard{background:var(--card);border:1px solid var(--b1);border-radius:18px;overflow:hidden;display:flex}
 .hthumb{width:86px;height:86px;object-fit:cover;flex-shrink:0}
@@ -144,7 +137,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .etit{font-size:22px;font-weight:700;color:var(--g4)}
 .etxt{font-size:14px;color:var(--t3);line-height:1.6}
 .ebtn{background:var(--bg3);border:1px solid var(--b2);border-radius:14px;color:var(--g2);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;cursor:pointer;margin-top:8px}
-/* modal */
 .mov{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
 .mov.on{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--b2);border-radius:24px 24px 0 0;padding:28px 22px calc(var(--sb) + 28px);width:100%;transform:translateY(40px);transition:transform .3s}
@@ -161,7 +153,6 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
 .minp:focus{border-color:var(--g1)}
 .mhint{font-size:12px;color:var(--t4);margin-bottom:20px;line-height:1.6}
 .msave{width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20);border:none;border-radius:14px;color:var(--g4);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;padding:15px;cursor:pointer}
-/* toast */
 .toast{position:fixed;top:calc(var(--st) + 70px);left:50%;transform:translateX(-50%) translateY(-10px);background:var(--bg3);border:1px solid var(--b2);border-radius:12px;padding:10px 18px;font-size:13px;color:var(--g2);font-weight:500;opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap;z-index:300;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden{display:none!important}
@@ -318,9 +309,7 @@ document.getElementById('modal').addEventListener('click', function(e) {
 function saveKey() {
   var v = document.getElementById('kinp').value.trim();
   if (!v) { toast('Please enter your API key'); return; }
-  sk(v);
-  closeModal();
-  toast('API key saved!');
+  sk(v); closeModal(); toast('API key saved!');
 }
 
 function doCamera() { if (!gk()) { openModal(); return; } document.getElementById('fcam').click(); }
@@ -372,37 +361,48 @@ function identify() {
   resize(S.img, function(small) {
     S.img = small;
     var b64 = small.split(',')[1];
-    var body = JSON.stringify({ image: b64, prompt: PROMPT });
+    var bodyData = JSON.stringify({ image: b64, prompt: PROMPT });
+    var timedOut = false;
+    var done = false;
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/proxy', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('x-api-key', gk());
-    xhr.timeout = 60000;
-
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4) return;
+    var timeoutId = setTimeout(function() {
+      if (done) return;
+      timedOut = true;
+      done = true;
       stopLoad();
-      if (xhr.status === 0) {
-        showErr('Connection failed. Check your internet connection.');
+      showErr('Request timed out after 55 seconds. Please try again.');
+    }, 55000);
+
+    fetch('/api/proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': gk()
+      },
+      body: bodyData
+    }).then(function(response) {
+      if (timedOut || done) return;
+      return response.json().then(function(data) {
+        return { status: response.status, ok: response.ok, data: data };
+      });
+    }).then(function(r) {
+      if (!r || timedOut || done) return;
+      done = true;
+      clearTimeout(timeoutId);
+      stopLoad();
+
+      if (!r.ok) {
+        showErr(r.data.error || 'Server error ' + r.status);
         return;
       }
-      var data;
-      try { data = JSON.parse(xhr.responseText); }
-      catch(e) { showErr('Bad response from server. Please try again.'); return; }
 
-      if (xhr.status !== 200) {
-        showErr(data.error || 'Server error ' + xhr.status);
-        return;
-      }
-
-      var raw = data.text || '';
+      var raw = r.data.text || '';
       if (!raw) { showErr('Empty response from Gemini. Please try again.'); return; }
 
       var clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
       var a = clean.indexOf('{');
       var b = clean.lastIndexOf('}');
-      if (a === -1) { showErr('Unexpected response: ' + raw.slice(0, 100)); return; }
+      if (a === -1) { showErr('Unexpected response. Please try again.'); return; }
 
       try {
         S.res = JSON.parse(clean.slice(a, b + 1));
@@ -410,9 +410,13 @@ function identify() {
       } catch(e) {
         showErr('Could not read AI response. Please try again.');
       }
-    };
-
-    xhr.send(body);
+    }).catch(function(err) {
+      if (timedOut || done) return;
+      done = true;
+      clearTimeout(timeoutId);
+      stopLoad();
+      showErr('Connection error. Make sure you have internet and try again.');
+    });
   });
 }
 
@@ -444,7 +448,7 @@ function renderResult() {
       var p = plants[i];
       var el = {yes:'✅ Edible',no:'🚫 Not edible',toxic:'☠️ Toxic',unknown:'❓ Unknown'}[p.edible] || '❓ Unknown';
       var ec = {yes:'tyes',no:'tno',toxic:'ttox',unknown:'tunk'}[p.edible] || 'tunk';
-      var cc = {h:'ch',m:'cm',l:'cl'}[(p.confidence||'m').charAt(0)] || 'cm';
+      var cc = {h:'ch',m:'cm',l:'cl'}[(p.confidence || 'm').charAt(0)] || 'cm';
       h += '<div class="pc" id="pc' + p.number + '" style="animation-delay:' + (i * 0.07) + 's" onclick="showDetail(' + p.number + ')">' +
         '<div class="ctop">' +
           '<div class="cnum">' + p.number + '</div>' +
@@ -494,9 +498,15 @@ function showDetail(num) {
   if (!p) return;
   S.plant = p;
 
-  var em = {yes:{c:'eyes',e:'✅',l:'Edible',d:'Known to be edible. Verify with expert before foraging.'},no:{c:'eno',e:'🚫',l:'Not edible',d:'Not typically consumed as food.'},toxic:{c:'etox',e:'☠️',l:'Toxic',d:'WARNING: May be toxic. Do not ingest. Keep from children and pets.'},unknown:{c:'eunk',e:'❓',l:'Unknown',d:'Do not consume without expert verification.'}}[p.edible] || {c:'eunk',e:'❓',l:'Unknown',d:''};
+  var em = {
+    yes: {c:'eyes',e:'✅',l:'Edible',d:'Known to be edible. Verify with expert before foraging.'},
+    no:  {c:'eno', e:'🚫',l:'Not edible',d:'Not typically consumed as food.'},
+    toxic:{c:'etox',e:'☠️',l:'Toxic',d:'WARNING: May be toxic. Do not ingest.'},
+    unknown:{c:'eunk',e:'❓',l:'Unknown',d:'Do not consume without expert verification.'}
+  }[p.edible] || {c:'eunk',e:'❓',l:'Unknown',d:''};
+
   var cc = {high:'#4caf50',medium:'#ff9800',low:'#f44336'}[p.confidence] || '#ff9800';
-  var cd = {high:'AI is highly confident in this identification.',medium:'Consider verifying with a field guide.',low:'Uncertain — expert verification recommended.'}[p.confidence] || '';
+  var cd = {high:'AI is highly confident.',medium:'Consider verifying with a field guide.',low:'Uncertain — expert verification recommended.'}[p.confidence] || '';
 
   document.getElementById('dbody').innerHTML =
     '<div class="dhero">' +
@@ -507,12 +517,15 @@ function showDetail(num) {
     '</div>' +
     '<div class="ic" style="border-color:' + cc + '44">' +
       '<div class="ilbl">Confidence</div>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:' + cc + ';flex-shrink:0"></div><span style="font-size:13px;font-weight:700;color:' + cc + '">' + (p.confidence||'medium') + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:' + cc + ';flex-shrink:0"></div>' +
+      '<span style="font-size:13px;font-weight:700;color:' + cc + '">' + (p.confidence||'medium') + '</span></div>' +
       '<div class="itxt">' + cd + '</div>' +
     '</div>' +
-    '<div class="ic"><div class="ilbl">About</div><div class="itxt">' + esc(p.description) + '</div>' + (p.details ? '<div class="itxt" style="margin-top:10px">' + esc(p.details) + '</div>' : '') + '</div>' +
+    '<div class="ic"><div class="ilbl">About</div><div class="itxt">' + esc(p.description) + '</div>' +
+      (p.details ? '<div class="itxt" style="margin-top:10px">' + esc(p.details) + '</div>' : '') +
+    '</div>' +
     '<div class="ec ' + em.c + '"><div class="eico">' + em.e + '</div><div><div class="elbl">' + em.l + '</div><div class="edsc">' + em.d + '</div></div></div>' +
-    '<div class="disc">⚠️ Plantify is an AI tool for educational purposes. Always verify identification with a certified botanist before foraging or handling unknown plants.</div>';
+    '<div class="disc">⚠️ Plantify is an AI tool for educational purposes. Always verify identification with a certified botanist before foraging.</div>';
 
   go('detail');
 }
@@ -521,7 +534,14 @@ function saveHist() {
   var plants = S.res && S.res.plants ? S.res.plants : [];
   if (!plants.length) return;
   var h = gh();
-  h.unshift({ id: Date.now()+'', date: new Date().toISOString(), img: S.img, plants: plants.map(function(p) { return {common:p.common,type:p.type}; }), count: plants.length, scene: (S.res && S.res.sceneDescription) || '' });
+  h.unshift({
+    id: Date.now() + '',
+    date: new Date().toISOString(),
+    img: S.img,
+    plants: plants.map(function(p) { return { common: p.common, type: p.type }; }),
+    count: plants.length,
+    scene: (S.res && S.res.sceneDescription) || ''
+  });
   sh(h.slice(0, 30));
   var b = document.getElementById('savebtn');
   if (b) { b.textContent = '✓ Saved!'; b.disabled = true; }
@@ -545,8 +565,8 @@ function renderHist() {
         '<div class="hcnt">' + e.count + ' plant' + (e.count !== 1 ? 's' : '') + ' found</div>' +
         (e.scene ? '<div class="hsc">' + esc(e.scene) + '</div>' : '') +
         '<div class="hpills">' +
-          e.plants.slice(0,4).map(function(p) { return '<span class="hpill">' + (ICOS[p.type]||'🌱') + ' ' + esc(p.common) + '</span>'; }).join('') +
-          (e.plants.length > 4 ? '<span class="hpill">+' + (e.plants.length-4) + ' more</span>' : '') +
+          e.plants.slice(0, 4).map(function(p) { return '<span class="hpill">' + (ICOS[p.type]||'🌱') + ' ' + esc(p.common) + '</span>'; }).join('') +
+          (e.plants.length > 4 ? '<span class="hpill">+' + (e.plants.length - 4) + ' more</span>' : '') +
         '</div>' +
       '</div></div>';
   }).join('');
@@ -561,20 +581,21 @@ function doShare() {
   var plants = S.res && S.res.plants ? S.res.plants : [];
   var list = plants.map(function(p) { return p.number + '. ' + p.common + ' (' + p.scientific + ')'; }).join('\n');
   var txt = 'Found ' + plants.length + ' plant(s) with Plantify 🌿\n\n' + list + '\n\nTry Plantify — free plant identification!';
-  if (navigator.share) { navigator.share({title:'Plantify Results', text:txt}); }
+  if (navigator.share) { navigator.share({ title: 'Plantify Results', text: txt }); }
   else if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { toast('Copied!'); }); }
 }
+
 function doSharePlant() {
   if (!S.plant) return;
-  var txt = '🌿 ' + S.plant.common + ' (' + S.plant.scientific + ')\n\n' + S.plant.description + '\n\n' + (S.plant.details||'') + '\n\nFound with Plantify';
-  if (navigator.share) { navigator.share({title:S.plant.common, text:txt}); }
+  var txt = '🌿 ' + S.plant.common + ' (' + S.plant.scientific + ')\n\n' + S.plant.description + '\n\n' + (S.plant.details || '') + '\n\nFound with Plantify';
+  if (navigator.share) { navigator.share({ title: S.plant.common, text: txt }); }
   else if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function() { toast('Copied!'); }); }
 }
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtD(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function fmtD(iso) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function(){}); }
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function() {}); }
 if (!gk()) { setTimeout(openModal, 800); }
 </script>
 </body>
