@@ -1,4 +1,3 @@
-// api/proxy.js — Gemini proxy for Plantify
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -16,15 +15,8 @@ export default async function handler(req, res) {
     const geminiBody = {
       contents: [{
         parts: [
-          {
-            inline_data: {
-              mime_type: 'image/jpeg',
-              data: image
-            }
-          },
-          {
-            text: prompt
-          }
+          { inline_data: { mime_type: 'image/jpeg', data: image } },
+          { text: prompt }
         ]
       }],
       generationConfig: {
@@ -42,14 +34,25 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const raw = await response.text();
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data?.error?.message || 'Gemini API error' });
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch(e) {
+      return res.status(500).json({ error: 'Invalid response from Gemini: ' + raw.slice(0, 200) });
     }
 
-    // Extract text from Gemini response format
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{"plants":[]}';
+    if (!response.ok) {
+      const msg = data?.error?.message || `Gemini error ${response.status}`;
+      return res.status(response.status).json({ error: msg });
+    }
+
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      return res.status(500).json({ error: 'Empty response from Gemini. Raw: ' + raw.slice(0, 300) });
+    }
+
     res.status(200).json({ text });
 
   } catch (err) {
