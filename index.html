@@ -385,13 +385,18 @@ function handleFile(file) {
 function resizeImg(dataURL, cb) {
   var img = new Image();
   img.onload = function() {
-    var MAX = 1120, w = img.width, h = img.height;
-    if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-    else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-    var c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    c.getContext('2d').drawImage(img, 0, 0, w, h);
-    cb(c.toDataURL('image/jpeg', 0.82));
+    try {
+      var MAX = 800, w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      else if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      var out = c.toDataURL('image/jpeg', 0.75);
+      cb(out);
+    } catch(e) {
+      cb(dataURL);
+    }
   };
   img.onerror = function() { cb(dataURL); };
   img.src = dataURL;
@@ -413,43 +418,39 @@ function identify(dataURL) {
   resizeImg(dataURL, function(resized) {
     state.img = resized;
     var b64 = resized.split(',')[1];
+    var bodyStr;
+    try {
+      bodyStr = JSON.stringify({ image: b64, prompt: PROMPT });
+    } catch(e) {
+      stopLoad(); showError('Failed to prepare image: ' + e.message); return;
+    }
 
-    fetch('/api/proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': getKey() },
-      body: JSON.stringify({ image: b64, prompt: PROMPT })
-    })
-    .then(function(res) {
-      return res.json().then(function(data) {
-        return { ok: res.ok, status: res.status, data: data };
-      });
-    })
-    .then(function(r) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/proxy', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('x-api-key', getKey());
+    xhr.timeout = 60000;
+
+    xhr.onload = function() {
       stopLoad();
-      if (!r.ok) {
-        showError(r.data.error || 'API error ' + r.status);
-        return;
-      }
-      var raw = r.data.text || '';
-      if (!raw) { showError('Empty response from Gemini. Please try again.'); return; }
-
-      // Strip any markdown fences Gemini might add
-      var cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+      var data;
+      try { data = JSON.parse(xhr.responseText); }
+      catch(e) { showError('Bad server response: ' + xhr.responseText.slice(0,100)); return; }
+      if (xhr.status !== 200) { showError(data.error || 'Server error ' + xhr.status); return; }
+      var raw = data.text || '';
+      if (!raw) { showError('Empty response. Please try again.'); return; }
+      var cleaned = raw.replace(//g,'').trim();
       var start = cleaned.indexOf('{');
       var end = cleaned.lastIndexOf('}');
-      if (start === -1) { showError('Unexpected response: ' + raw.slice(0, 120)); return; }
-
+      if (start === -1) { showError('Unexpected AI response: ' + raw.slice(0,120)); return; }
       try {
         state.results = JSON.parse(cleaned.slice(start, end + 1));
         renderResult();
-      } catch(e) {
-        showError('Could not parse response: ' + cleaned.slice(0, 120));
-      }
-    })
-    .catch(function(err) {
-      stopLoad();
-      showError('Network error: ' + err.message);
-    });
+      } catch(e) { showError('Could not read AI response: ' + cleaned.slice(0,120)); }
+    };
+    xhr.onerror = function() { stopLoad(); showError('Connection failed. Check your internet and try again.'); };
+    xhr.ontimeout = function() { stopLoad(); showError('Request timed out. Please try again.'); };
+    try { xhr.send(bodyStr); } catch(e) { stopLoad(); showError('Failed to send: ' + e.message); }
   });
 }
 
