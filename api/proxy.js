@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const apiKey = req.headers['x-api-key'];
+  const apiKey = process.env.GEMINI_API_KEY;
   const image = req.body && req.body.image ? req.body.image : '';
 
   if (!apiKey || !image) {
