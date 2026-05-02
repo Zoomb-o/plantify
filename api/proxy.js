@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             { inline_data: { mime_type: 'image/jpeg', data: image } },
             { text: 'You are a botanist. Identify all plants in this image. You MUST respond with ONLY a valid JSON object, no markdown, no explanation, no code fences. Use this exact structure: {"sceneDescription":"describe the scene","plants":[{"number":1,"common":"Common Name","scientific":"Scientific Name","type":"flower","description":"One sentence.","details":"Two sentences.","edible":"unknown","confidence":"high","x":50,"y":50}]}. If no plants found use empty array.' }
           ]}],
-          generationConfig: { temperature: 0.1, maxOutputTokens: 1024 }
+          generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
         })
       }
     );
